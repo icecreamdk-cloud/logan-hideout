@@ -1,1 +1,32 @@
-/* Add styles here */
+/* General Styles */
+body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background-color: #f8d7da;
+    color: #721c24;
+    text-align: center;
+}
+
+h1 {
+    color: #721c24;
+}
+
+main {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+}
+
+section {
+    background-color: #f5c6cb;
+    border: 2px solid #f1948a;
+    border-radius: 10px;
+    padding: 20px;
+    width: 45%;
+}
+
+.game-container {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8d7da;
+    border-radius: 8px;
+}
