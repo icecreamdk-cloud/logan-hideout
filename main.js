@@ -5,28 +5,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameLinks = document.querySelectorAll('.game-link');
     const gameViews = document.querySelectorAll('.game-view');
 
+    let activeGame = null;
+
     // --- Navigation --- //
+    function stopAllGames() {
+        if (fallingSquare.gameLoop) fallingSquare.stop();
+        if (noGuri.gameLoop) noGuri.stop();
+        if (plusMinus.timerInterval) plusMinus.stop();
+    }
+
     function showGame(gameId) {
+        stopAllGames();
         mainMenu.classList.add('hidden');
         gameContainer.classList.remove('hidden');
         gameViews.forEach(view => view.classList.add('hidden'));
         document.getElementById(`${gameId}-game`).classList.remove('hidden');
+        activeGame = gameId;
+        if (gameInitializers[gameId]) {
+            gameInitializers[gameId]();
+        }
     }
 
     function showMainMenu() {
+        stopAllGames();
         mainMenu.classList.remove('hidden');
         gameContainer.classList.add('hidden');
+        activeGame = null;
     }
 
     gameLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-            const gameId = e.target.dataset.game;
-            showGame(gameId);
-            // Initialize the specific game if needed
-            if (gameInitializers[gameId]) {
-                gameInitializers[gameId]();
-            }
+            showGame(e.target.dataset.game);
         });
     });
 
@@ -34,9 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Game Logic --- //
 
-    // Shared variables
     let consecutiveCorrect = 0;
-    let timerInterval;
 
     // --- Multiplication Game --- //
     const multiplication = {
@@ -44,16 +52,13 @@ document.addEventListener('DOMContentLoaded', () => {
         answerEl: document.getElementById('multiplication-answer'),
         submitBtn: document.getElementById('multiplication-submit'),
         feedbackEl: document.getElementById('multiplication-feedback'),
-        num1: 0, 
-        num2: 0,
-
+        num1: 0, num2: 0,
         generateProblem() {
             this.num1 = Math.floor(Math.random() * 6) + 4;
             this.num2 = Math.floor(Math.random() * 9) + 1;
             this.problemEl.textContent = `${this.num1} x ${this.num2} = ?`;
             this.feedbackEl.textContent = '';
         },
-
         checkAnswer() {
             const userAnswer = parseInt(this.answerEl.value);
             if (userAnswer === this.num1 * this.num2) {
@@ -63,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.feedbackEl.textContent = 'Pass!';
                     consecutiveCorrect = 0;
                 }
-                this.generateProblem();
+                setTimeout(() => this.generateProblem(), 500);
             } else {
                 consecutiveCorrect = 0;
                 this.feedbackEl.textContent = 'Wrong! Try again.';
@@ -82,14 +87,12 @@ document.addEventListener('DOMContentLoaded', () => {
         feedbackEl: document.getElementById('english-feedback'),
         words: { '사과': 'apple', '책': 'book', '의자': 'chair', '물': 'water', '학교': 'school' },
         currentWord: '',
-
         generateProblem() {
             const keys = Object.keys(this.words);
             this.currentWord = keys[Math.floor(Math.random() * keys.length)];
             this.problemEl.textContent = this.currentWord;
             this.feedbackEl.textContent = '';
         },
-
         checkAnswer() {
             const userAnswer = this.answerEl.value.trim().toLowerCase();
             if (userAnswer === this.words[this.currentWord]) {
@@ -99,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.feedbackEl.textContent = 'Pass!';
                     consecutiveCorrect = 0;
                 }
-                this.generateProblem();
+                setTimeout(() => this.generateProblem(), 500);
             } else {
                 consecutiveCorrect = 0;
                 this.feedbackEl.textContent = 'Wrong! Try again.';
@@ -118,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
         feedbackEl: document.getElementById('typing-feedback'),
         sentences: ['하늘은 맑고 푸르다', '바람이 시원하게 분다', '나는 학교에 간다'],
         startTime: 0,
-
         start() {
             const sentence = this.sentences[Math.floor(Math.random() * this.sentences.length)];
             this.sentenceEl.textContent = sentence;
@@ -126,22 +128,20 @@ document.addEventListener('DOMContentLoaded', () => {
             this.inputEl.focus();
             this.feedbackEl.textContent = '';
             this.startTime = Date.now();
-            this.inputEl.addEventListener('input', () => this.checkTyping());
         },
-
         checkTyping() {
             const typed = this.inputEl.value;
             const original = this.sentenceEl.textContent;
             if (typed === original) {
                 const endTime = Date.now();
-                const timeTaken = (endTime - this.startTime) / 1000; // in seconds
+                const timeTaken = (endTime - this.startTime) / 1000;
                 const wpm = Math.round((original.length / 5) / (timeTaken / 60));
                 this.feedbackEl.textContent = `WPM: ${wpm}`;
-                this.inputEl.removeEventListener('input', () => this.checkTyping());
             }
         }
     };
     typing.startBtn.addEventListener('click', () => typing.start());
+    typing.inputEl.addEventListener('input', () => typing.checkTyping());
 
     // --- +/- Game --- //
     const plusMinus = {
@@ -151,21 +151,25 @@ document.addEventListener('DOMContentLoaded', () => {
         feedbackEl: document.getElementById('plus-minus-feedback'),
         timerBar: document.getElementById('timer-bar'),
         correctAnswer: 0,
-
+        timerInterval: null,
+        stop() {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        },
         generateProblem() {
+            this.stop();
             const isPlus = Math.random() > 0.5;
             let num1 = Math.floor(Math.random() * 20) + 1;
             let num2 = Math.floor(Math.random() * 20) + 1;
-            if (!isPlus && num1 < num2) [num1, num2] = [num2, num1]; // Ensure positive result for subtraction
-
+            if (!isPlus && num1 < num2) [num1, num2] = [num2, num1];
             this.correctAnswer = isPlus ? num1 + num2 : num1 - num2;
             this.problemEl.textContent = `${num1} ${isPlus ? '+' : '-'} ${num2} = ?`;
             this.feedbackEl.textContent = '';
+            this.answerEl.value = '';
             this.resetTimer();
         },
-
         checkAnswer() {
-            clearInterval(timerInterval);
+            this.stop();
             const userAnswer = parseInt(this.answerEl.value);
             if (userAnswer === this.correctAnswer) {
                 consecutiveCorrect++;
@@ -174,24 +178,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.feedbackEl.textContent = 'Pass!';
                     consecutiveCorrect = 0;
                 }
-                this.generateProblem();
+                setTimeout(() => this.generateProblem(), 1000);
             } else {
                 consecutiveCorrect = 0;
                 this.feedbackEl.textContent = 'Wrong! Try again.';
                 setTimeout(() => this.generateProblem(), 1000);
             }
-            this.answerEl.value = '';
         },
-
         resetTimer() {
-            clearInterval(timerInterval);
             let timeLeft = 5;
             this.timerBar.style.width = '100%';
-            timerInterval = setInterval(() => {
+            this.timerInterval = setInterval(() => {
                 timeLeft -= 0.1;
                 this.timerBar.style.width = `${(timeLeft / 5) * 100}%`;
                 if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
+                    this.stop();
                     this.feedbackEl.textContent = 'Time up!';
                     consecutiveCorrect = 0;
                     setTimeout(() => this.generateProblem(), 1000);
@@ -202,69 +203,68 @@ document.addEventListener('DOMContentLoaded', () => {
     plusMinus.submitBtn.addEventListener('click', () => plusMinus.checkAnswer());
     plusMinus.answerEl.addEventListener('keyup', e => e.key === 'Enter' && plusMinus.checkAnswer());
 
-
-    // --- Canvas Games --- //
-    // (Simplified versions for demonstration)
-
-    // --- Falling Square (Flappy Bird Clone) --- //
-    const fallingSquare = {
-        canvas: document.getElementById('falling-square-canvas'),
-        ctx: null,
-        player: { x: 50, y: 150, width: 20, height: 20, velocity: 0, gravity: 0.5, jump: -8 },
-        obstacles: [],
-        frame: 0,
-        score: 0,
-        gameLoop: null,
-
-        init() {
-            this.ctx = this.canvas.getContext('2d');
-            document.addEventListener('keydown', e => e.code === 'Space' && (this.player.velocity = this.player.jump));
-            this.reset();
-            this.start();
-        },
-        
-        reset(){
+    // --- Canvas Games Base --- //
+    const canvasGame = {
+        ctx: null, gameLoop: null, frame: 0, handler: null,
+        stop() {
             clearInterval(this.gameLoop);
-            this.player.y = 150;
-            this.player.velocity = 0;
-            this.obstacles = [];
-            this.score = 0;
-            this.frame = 0;
+            this.gameLoop = null;
+            if (this.handler) {
+                document.removeEventListener('keydown', this.handler);
+                this.handler = null;
+            }
         },
-
-        start() {
+        startLoop() {
             this.gameLoop = setInterval(() => {
                 this.update();
                 this.draw();
             }, 1000 / 60);
-        },
+        }
+    };
 
+    // --- Falling Square --- //
+    const fallingSquare = {
+        ...canvasGame,
+        canvas: document.getElementById('falling-square-canvas'),
+        player: { x: 50, y: 150, width: 20, height: 20, velocity: 0, gravity: 0.5, jump: -8 },
+        obstacles: [],
+        init() {
+            this.stop();
+            this.ctx = this.canvas.getContext('2d');
+            this.handler = e => {
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    this.player.velocity = this.player.jump;
+                }
+            };
+            document.addEventListener('keydown', this.handler);
+            this.reset();
+            this.startLoop();
+        },
+        reset() {
+            this.player.y = 150;
+            this.player.velocity = 0;
+            this.obstacles = [];
+            this.frame = 0;
+        },
         update() {
             this.player.velocity += this.player.gravity;
             this.player.y += this.player.velocity;
-
-            // Obstacles
             this.frame++;
             if (this.frame % 90 === 0) {
                 const gapHeight = 120;
                 const gapY = Math.random() * (this.canvas.height - gapHeight);
-                this.obstacles.push({ x: this.canvas.width, y: 0, width: 40, height: gapY }); // Top
-                this.obstacles.push({ x: this.canvas.width, y: gapY + gapHeight, width: 40, height: this.canvas.height }); // Bottom
+                this.obstacles.push({ x: this.canvas.width, y: 0, width: 40, height: gapY });
+                this.obstacles.push({ x: this.canvas.width, y: gapY + gapHeight, width: 40, height: this.canvas.height });
             }
             this.obstacles.forEach(obs => obs.x -= 2);
-
-            // Collision
-            if (this.player.y > this.canvas.height - this.player.height || this.obstacles.some(obs => 
+            const collision = this.player.y > this.canvas.height - this.player.height || this.obstacles.some(obs => 
                 this.player.x < obs.x + obs.width &&
                 this.player.x + this.player.width > obs.x &&
                 this.player.y < obs.y + obs.height &&
-                this.player.y + this.player.height > obs.y
-            )) {
-                this.reset();
-                this.start();
-            }
+                this.player.y + this.player.height > obs.y);
+            if (collision) this.reset();
         },
-
         draw() {
             this.ctx.fillStyle = '#000';
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -277,35 +277,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- NO-Guri --- //
     const noGuri = {
+        ...canvasGame,
         canvas: document.getElementById('no-guri-canvas'),
-        ctx: null,
         player: { x: 50, y: 280, width: 20, height: 20, velocityY: 0, onGround: true, jump: -12, gravity: 0.6 },
         villains: [],
-        frame: 0,
-        gameLoop: null,
-
         init() {
+            this.stop();
             this.ctx = this.canvas.getContext('2d');
-            document.addEventListener('keydown', e => e.code === 'Space' && this.player.onGround && (this.player.velocityY = this.player.jump));
+            this.handler = e => {
+                if (e.code === 'Space' && this.player.onGround) {
+                    e.preventDefault();
+                    this.player.velocityY = this.player.jump;
+                }
+            };
+            document.addEventListener('keydown', this.handler);
             this.reset();
-            this.start();
+            this.startLoop();
         },
-        
-        reset(){
-            clearInterval(this.gameLoop);
+        reset() {
             this.player.y = 280;
             this.player.velocityY = 0;
             this.villains = [];
             this.frame = 0;
         },
-
-        start() {
-            this.gameLoop = setInterval(() => {
-                this.update();
-                this.draw();
-            }, 1000 / 60);
-        },
-
         update() {
             this.player.velocityY += this.player.gravity;
             this.player.y += this.player.velocityY;
@@ -315,65 +309,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.player.velocityY = 0;
                 this.player.onGround = true;
             }
-
             this.frame++;
             if (this.frame % 120 === 0) {
                 this.villains.push({ x: this.canvas.width, y: 280, width: 20, height: 20 });
             }
             this.villains.forEach(v => v.x -= 3);
-
-            if (this.villains.some(v => 
-                this.player.x < v.x + v.width &&
-                this.player.x + this.player.width > v.x &&
-                this.player.y < v.y + v.height &&
-                this.player.y + this.player.height > v.y
-            )) {
+            if (this.villains.some(v => this.player.x < v.x + v.width && this.player.x + this.player.width > v.x && this.player.y < v.y + v.height && this.player.y + this.player.height > v.y)) {
                 this.reset();
-                this.start();
             }
         },
-
         draw() {
             this.ctx.fillStyle = '#000';
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             this.ctx.fillStyle = '#03dac6';
-            this.ctx.beginPath();
-            this.ctx.arc(this.player.x + 10, this.player.y + 10, 10, 0, Math.PI * 2);
-            this.ctx.fill();
+            this.ctx.beginPath(); this.ctx.arc(this.player.x + 10, this.player.y + 10, 10, 0, Math.PI * 2); this.ctx.fill();
             this.ctx.fillStyle = '#cf6679';
             this.villains.forEach(v => {
-                this.ctx.beginPath();
-                this.ctx.moveTo(v.x + 10, v.y);
-                this.ctx.lineTo(v.x, v.y + 20);
-                this.ctx.lineTo(v.x + 20, v.y + 20);
-                this.ctx.closePath();
-                this.ctx.fill();
+                this.ctx.beginPath(); this.ctx.moveTo(v.x + 10, v.y); this.ctx.lineTo(v.x, v.y + 20); this.ctx.lineTo(v.x + 20, v.y + 20); this.ctx.closePath(); this.ctx.fill();
             });
         }
     };
     
     const gameInitializers = {
-        'multiplication': () => {
-            consecutiveCorrect = 0;
-            multiplication.generateProblem();
-        },
-        'english': () => {
-            consecutiveCorrect = 0;
-            english.generateProblem();
-        },
+        'multiplication': () => { consecutiveCorrect = 0; multiplication.generateProblem(); },
+        'english': () => { consecutiveCorrect = 0; english.generateProblem(); },
         'typing': () => typing.start(),
-        'plus-minus': () => {
-            consecutiveCorrect = 0;
-            plusMinus.generateProblem();
-        },
-        'falling-square': () => {
-            fallingSquare.reset();
-            fallingSquare.init();
-        },
-        'no-guri': () => {
-            noGuri.reset();
-            noGuri.init();
-        },
+        'plus-minus': () => { consecutiveCorrect = 0; plusMinus.generateProblem(); },
+        'falling-square': () => fallingSquare.init(),
+        'no-guri': () => noGuri.init(),
     };
 
 });
