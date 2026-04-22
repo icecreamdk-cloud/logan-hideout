@@ -10,65 +10,88 @@
     <header>
         <h1>Logan's Hideout (로건의 아지트)</h1>
     </header>
-    <main>
-        <section id="think-room">
+
+    <!-- Main Menu View -->
+    <main id="main-menu">
+        <section class="room">
             <h2>Think Room (놀면서 학습하는)</h2>
-            <div class="game-accordion">
-                <div class="game-header">
-                    <h3>구구단 게임</h3>
-                    <p>4단부터 9단까지 랜덤 문제를 연속 3번 맞추면 pass</p>
-                </div>
-                <div class="game-content">
-                    <div id="multiplication-problem"></div>
-                    <input type="text" id="multiplication-answer">
-                    <button id="multiplication-submit">Submit</button>
-                </div>
-            </div>
-            <div class="game-accordion">
-                <div class="game-header">
-                    <h3>영단어 게임</h3>
-                    <p>초등4학년 수준 한글 단어를 영어로 맞추기</p>
-                </div>
-                <div class="game-content">
-                    </div>
-            </div>
-            <div class="game-accordion">
-                <div class="game-header">
-                    <h3>한글 타자</h3>
-                    <p>초등3학년 수준 한 문장을 타이핑 하기. 타자 속도만 출력.</p>
-                </div>
-                <div class="game-content">
-                </div>
+            <div class="game-list">
+                <a href="#" class="game-link" data-game="multiplication">구구단 게임</a>
+                <a href="#" class="game-link" data-game="english">영단어 게임</a>
+                <a href="#" class="game-link" data-game="typing">한글 타자</a>
             </div>
         </section>
-        <section id="game-room">
+        <section class="room">
             <h2>Game Room (즐거운 미니 게임 한가득)</h2>
-            <div class="game-accordion">
-                <div class="game-header">
-                    <h3>낙하네모</h3>
-                    <p>플래피 버드 클론 게임. 낙하하는 네모를 지켜라.</p>
-                </div>
-                <div class="game-content">
-                </div>
-            </div>
-            <div class="game-accordion">
-                <div class="game-header">
-                    <h3>NO구리</h3>
-                    <p>너구리 클론 게임. 삼각형 악당을 뛰어넘는 동그라미 여정.</p>
-                </div>
-                <div class="game-content">
-                </div>
-            </div>
-            <div class="game-accordion">
-                <div class="game-header">
-                    <h3>+-게임</h3>
-                    <p>초등2학년 수준 더하기, 빼기 게임으로 5초이내 문제를 풀어라. 3문제 연속 맞추면 pass</p>
-                </div>
-                <div class="game-content">
-                </div>
+            <div class="game-list">
+                <a href="#" class="game-link" data-game="falling-square">낙하네모</a>
+                <a href="#" class="game-link" data-game="no-guri">NO구리</a>
+                <a href="#" class="game-link" data-game="plus-minus">+/- 게임</a>
             </div>
         </section>
     </main>
+
+    <!-- Game Views -->
+    <div id="game-container" class="hidden">
+        <button id="back-to-menu">Back to Menu</button>
+        <div id="game-content">
+            <!-- Multiplication Game -->
+            <div id="multiplication-game" class="game-view hidden">
+                <h3>구구단 게임</h3>
+                <p>4단부터 9단까지 랜덤 문제를 연속 3번 맞추면 pass</p>
+                <div id="multiplication-problem" class="problem"></div>
+                <input type="number" id="multiplication-answer" placeholder="정답">
+                <button id="multiplication-submit">Submit</button>
+                <p id="multiplication-feedback"></p>
+            </div>
+
+            <!-- English Word Game -->
+            <div id="english-game" class="game-view hidden">
+                <h3>영단어 게임</h3>
+                <p>초등4학년 수준 한글 단어를 영어로 맞추기 (3번 연속)</p>
+                <div id="english-problem" class="problem"></div>
+                <input type="text" id="english-answer" placeholder="English word">
+                <button id="english-submit">Submit</button>
+                <p id="english-feedback"></p>
+            </div>
+
+            <!-- Korean Typing Game -->
+            <div id="typing-game" class="game-view hidden">
+                <h3>한글 타자</h3>
+                <p>초등3학년 수준 한 문장을 타이핑 하기. 타자 속도만 출력.</p>
+                <div id="typing-sentence" class="problem"></div>
+                <textarea id="typing-input" rows="3" placeholder="위 문장을 따라 입력하세요..."></textarea>
+                <button id="typing-start">Start</button>
+                <p id="typing-feedback"></p>
+            </div>
+
+            <!-- Falling Square Game -->
+            <div id="falling-square-game" class="game-view hidden">
+                <h3>낙하네모</h3>
+                <p>플래피 버드 클론 게임. 낙하하는 네모를 지켜라. (Space bar to jump)</p>
+                <canvas id="falling-square-canvas" width="480" height="320"></canvas>
+            </div>
+
+            <!-- NO-Guri Game -->
+            <div id="no-guri-game" class="game-view hidden">
+                <h3>NO구리</h3>
+                <p>너구리 클론 게임. 삼각형 악당을 뛰어넘는 동그라미 여정. (Space bar to jump)</p>
+                <canvas id="no-guri-canvas" width="480" height="320"></canvas>
+            </div>
+
+            <!-- +/- Game -->
+            <div id="plus-minus-game" class="game-view hidden">
+                <h3>+/- 게임</h3>
+                <p>초등2학년 수준 더하기, 빼기 게임으로 5초이내 문제를 풀어라. 3문제 연속 맞추면 pass</p>
+                <div id="plus-minus-problem" class="problem"></div>
+                <div id="timer-bar-container"><div id="timer-bar"></div></div>
+                <input type="number" id="plus-minus-answer" placeholder="정답">
+                <button id="plus-minus-submit">Submit</button>
+                <p id="plus-minus-feedback"></p>
+            </div>
+        </div>
+    </div>
+
     <script src="main.js"></script>
 </body>
 </html>

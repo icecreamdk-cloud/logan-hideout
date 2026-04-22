@@ -1,42 +1,157 @@
 /* General Styles */
 body {
     font-family: 'Comic Sans MS', cursive, sans-serif;
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: #121212; /* Dark background */
+    color: #e0e0e0; /* Light text */
     text-align: center;
+    margin: 0;
+    padding: 20px;
 }
 
-h1 {
-    color: #721c24;
+header h1 {
+    color: #bb86fc; /* Purple accent */
 }
 
-main {
+.hidden {
+    display: none;
+}
+
+/* Main Menu Styles */
+#main-menu {
     display: flex;
-    flex-direction: column; /* Arrange rooms vertically */
-    align-items: center; /* Center rooms */
-    padding: 20px;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
 }
 
-section {
-    background-color: #f5c6cb;
-    border: 2px solid #f1948a;
+.room {
+    background-color: #1e1e1e; /* Slightly lighter dark */
+    border: 2px solid #bb86fc;
+    border-radius: 15px;
+    padding: 20px;
+    width: 80%;
+    max-width: 600px;
+}
+
+.room h2 {
+    color: #03dac6; /* Teal accent */
+    border-bottom: 2px solid #03dac6;
+    padding-bottom: 10px;
+}
+
+.game-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.game-link {
+    background-color: #bb86fc;
+    color: #121212;
+    padding: 15px;
     border-radius: 10px;
-    padding: 20px;
-    width: 80%; /* Adjust width as needed */
-    margin-bottom: 20px; /* Add space between rooms */
+    text-decoration: none;
+    font-size: 1.2em;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
-.game-accordion .game-header {
+.game-link:hover {
+    background-color: #3700b3; /* Darker purple */
+    color: #e0e0e0;
+    transform: scale(1.05);
+}
+
+/* Game View Styles */
+#game-container {
+    background-color: #1e1e1e;
+    border: 2px solid #bb86fc;
+    border-radius: 15px;
+    padding: 20px;
+    width: 90%;
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+#back-to-menu {
+    background-color: #cf6679; /* Red accent for back */
+    color: #121212;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1em;
     cursor: pointer;
-    padding: 10px;
-    background-color: #f1948a;
+    margin-bottom: 20px;
+    transition: background-color 0.3s;
+}
+
+#back-to-menu:hover {
+    background-color: #b00020;
+}
+
+.game-view h3 {
+    color: #03dac6;
+    font-size: 2em;
+}
+
+.game-view p {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+}
+
+.problem {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #bb86fc;
+    margin: 20px 0;
+}
+
+input, textarea {
+    background-color: #333;
+    color: #e0e0e0;
+    border: 1px solid #bb86fc;
     border-radius: 5px;
+    padding: 10px;
+    width: 80%;
+    font-size: 1.2em;
     margin-bottom: 10px;
 }
 
-.game-accordion .game-content {
-    display: none; /* Initially hide game content */
-    padding: 15px;
-    background-color: #f8d7da;
+button {
+    background-color: #03dac6;
+    color: #121212;
+    border: none;
+    padding: 12px 25px;
     border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #018786;
+}
+
+canvas {
+    background-color: #000;
+    border: 2px solid #03dac6;
+    border-radius: 10px;
+}
+
+/* Timer Bar */
+#timer-bar-container {
+    width: 80%;
+    height: 20px;
+    background-color: #333;
+    border-radius: 10px;
+    margin: 10px auto;
+    overflow: hidden;
+}
+
+#timer-bar {
+    height: 100%;
+    width: 100%;
+    background-color: #bb86fc;
+    transition: width 0.1s linear;
 }
