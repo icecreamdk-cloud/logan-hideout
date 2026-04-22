@@ -9,7 +9,7 @@ body {
 }
 
 header h1 {
-    color: #bb86fc; /* Purple accent */
+    color: #03dac6; /* Teal accent */
 }
 
 .hidden {
@@ -26,7 +26,7 @@ header h1 {
 
 .room {
     background-color: #1e1e1e; /* Slightly lighter dark */
-    border: 2px solid #bb86fc;
+    border: 2px solid #03dac6; /* Teal border */
     border-radius: 15px;
     padding: 20px;
     width: 80%;
@@ -34,7 +34,7 @@ header h1 {
 }
 
 .room h2 {
-    color: #03dac6; /* Teal accent */
+    color: #e0e0e0; /* White text */
     border-bottom: 2px solid #03dac6;
     padding-bottom: 10px;
 }
@@ -47,7 +47,7 @@ header h1 {
 }
 
 .game-link {
-    background-color: #bb86fc;
+    background-color: #03dac6; /* Teal background */
     color: #121212;
     padding: 15px;
     border-radius: 10px;
@@ -58,7 +58,7 @@ header h1 {
 }
 
 .game-link:hover {
-    background-color: #3700b3; /* Darker purple */
+    background-color: #018786; /* Darker Teal */
     color: #e0e0e0;
     transform: scale(1.05);
 }
@@ -66,7 +66,7 @@ header h1 {
 /* Game View Styles */
 #game-container {
     background-color: #1e1e1e;
-    border: 2px solid #bb86fc;
+    border: 2px solid #03dac6;
     border-radius: 15px;
     padding: 20px;
     width: 90%;
@@ -103,14 +103,14 @@ header h1 {
 .problem {
     font-size: 2.5em;
     font-weight: bold;
-    color: #bb86fc;
+    color: #e0e0e0; /* White problem text */
     margin: 20px 0;
 }
 
 input, textarea {
     background-color: #333;
     color: #e0e0e0;
-    border: 1px solid #bb86fc;
+    border: 1px solid #03dac6; /* Teal border */
     border-radius: 5px;
     padding: 10px;
     width: 80%;
@@ -152,6 +152,6 @@ canvas {
 #timer-bar {
     height: 100%;
     width: 100%;
-    background-color: #bb86fc;
+    background-color: #03dac6; /* Teal timer bar */
     transition: width 0.1s linear;
 }
