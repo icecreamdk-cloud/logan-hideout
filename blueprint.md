@@ -14,7 +14,7 @@ A playful and educational website for children, featuring a "Think Room" for lea
 
 *   **Color Palette:** Red-based, vibrant, and kid-friendly.
 *   **Typography:** Playful and easy-to-read fonts suitable for children.
-*   **Layout:** Clean and intuitive, with clear separation between the "Think Room" and "Game Room."
+*   **Layout:** The "Think Room" and "Game Room" are arranged vertically. Each room contains a list of games, and clicking on a game title reveals the game content in an accordion-style interaction.
 
 ## Features
 
@@ -29,4 +29,3 @@ A playful and educational website for children, featuring a "Think Room" for lea
 *   **Falling Square:** A Flappy Bird clone.
 *   **NO-Guri:** A platformer where a circle jumps over triangle villains.
 *   **+/- Game:** Solve addition/subtraction problems within 5 seconds, pass after 3 consecutive correct answers.
-

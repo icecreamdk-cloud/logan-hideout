@@ -12,7 +12,8 @@ h1 {
 
 main {
     display: flex;
-    justify-content: space-around;
+    flex-direction: column; /* Arrange rooms vertically */
+    align-items: center; /* Center rooms */
     padding: 20px;
 }
 
@@ -21,11 +22,20 @@ section {
     border: 2px solid #f1948a;
     border-radius: 10px;
     padding: 20px;
-    width: 45%;
+    width: 80%; /* Adjust width as needed */
+    margin-bottom: 20px; /* Add space between rooms */
 }
 
-.game-container {
-    margin-bottom: 20px;
+.game-accordion .game-header {
+    cursor: pointer;
+    padding: 10px;
+    background-color: #f1948a;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.game-accordion .game-content {
+    display: none; /* Initially hide game content */
     padding: 15px;
     background-color: #f8d7da;
     border-radius: 8px;

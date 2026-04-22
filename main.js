@@ -40,4 +40,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     generateProblem();
+
+    // Accordion functionality
+    const accordions = document.querySelectorAll('.game-accordion .game-header');
+
+    accordions.forEach(accordion => {
+        accordion.addEventListener('click', () => {
+            const content = accordion.nextElementSibling;
+            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        });
+    });
 });
