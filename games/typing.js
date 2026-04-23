@@ -9,7 +9,8 @@ export const typing = {
     "도전 없이는 성장도 없다.", "미래를 예측하는 가장 좋은 방법은 미래를 창조하는 것이다.", "배움에는 끝이 없다.", "최고의 복수는 엄청난 성공이다.", "인생은 한 번뿐, 후회 없이 살자."],
     startTime: 0,
     inputHandler: null,
-    timeoutId: null, // setTimeout을 추적하기 위한 ID
+    keydownHandler: null, // 스페이스바 문제를 해결하기 위한 핸들러
+    timeoutId: null,
 
     init() {
         this.feedbackEl.textContent = '';
@@ -17,7 +18,16 @@ export const typing = {
         this.inputEl.disabled = false;
         
         this.inputHandler = () => this.checkTyping();
+        // keydown 이벤트를 textarea에 직접 연결하여 이벤트 전파를 막습니다.
+        this.keydownHandler = (e) => {
+            // 다른 전역 리스너가 스페이스바를 막지 못하도록 이벤트 전파를 중단합니다.
+            if (e.code === 'Space') {
+                e.stopPropagation();
+            }
+        };
+        
         this.inputEl.addEventListener('input', this.inputHandler);
+        this.inputEl.addEventListener('keydown', this.keydownHandler);
 
         const sentence = this.sentences[Math.floor(Math.random() * this.sentences.length)];
         this.sentenceEl.textContent = sentence;
@@ -42,10 +52,7 @@ export const typing = {
             this.feedbackEl.textContent = `성공! 속도: 약 ${wpm} WPM`;
             this.inputEl.disabled = true;
             
-            // 새로운 게임 시작을 위한 setTimeout 설정
-            this.timeoutId = setTimeout(() => {
-                this.init();
-            }, 2000); 
+            this.timeoutId = setTimeout(() => this.init(), 2000);
         }
     },
 
@@ -54,7 +61,10 @@ export const typing = {
             this.inputEl.removeEventListener('input', this.inputHandler);
             this.inputHandler = null;
         }
-        // 컴포넌트가 파괴될 때 setTimeout을 클리어
+        if (this.keydownHandler) {
+            this.inputEl.removeEventListener('keydown', this.keydownHandler);
+            this.keydownHandler = null;
+        }
         if (this.timeoutId) {
             clearTimeout(this.timeoutId);
             this.timeoutId = null;
