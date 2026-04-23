@@ -101,12 +101,80 @@ document.addEventListener('DOMContentLoaded', () => {
     multiplication.restartBtn.addEventListener('click', () => multiplication.init());
 
     const english = {
-        // ... (이전과 동일, 생략)
+        problemEl: document.getElementById('english-problem'),
+        answerEl: document.getElementById('english-answer'),
+        submitBtn: document.getElementById('english-submit'),
+        feedbackEl: document.getElementById('english-feedback'),
+        words: { "사과": "apple", "바나나": "banana", "고양이": "cat", "개": "dog", "집": "house", "책": "book", "차": "car", "의자": "chair", "책상": "desk", "컴퓨터": "computer" },
+        currentWord: '',
+        consecutiveCorrect: 0,
+
+        init() {
+            this.consecutiveCorrect = 0;
+            this.feedbackEl.textContent = '';
+            this.generateProblem();
+        },
+        generateProblem() {
+            const keys = Object.keys(this.words);
+            this.currentWord = keys[Math.floor(Math.random() * keys.length)];
+            this.problemEl.textContent = this.currentWord;
+            this.answerEl.value = '';
+            this.answerEl.focus();
+        },
+        checkAnswer() {
+            if (this.answerEl.value.toLowerCase() === this.words[this.currentWord]) {
+                this.consecutiveCorrect++;
+                this.feedbackEl.textContent = `정답! (${this.consecutiveCorrect}/3)`;
+                if (this.consecutiveCorrect >= 3) {
+                    this.feedbackEl.textContent = '통과!';
+                }
+                this.generateProblem();
+            } else {
+                this.consecutiveCorrect = 0;
+                this.feedbackEl.textContent = '오답! 다시 시도하세요.';
+            }
+            this.answerEl.value = '';
+        }
     };
+    english.submitBtn.addEventListener('click', () => english.checkAnswer());
+    english.answerEl.addEventListener('keyup', e => e.key === 'Enter' && english.checkAnswer());
 
     const typing = {
-        // ... (이전과 동일, 생략)
+        sentenceEl: document.getElementById('typing-sentence'),
+        inputEl: document.getElementById('typing-input'),
+        feedbackEl: document.getElementById('typing-feedback'),
+        startBtn: document.getElementById('typing-start'),
+        sentences: ["하늘이 푸르다.", "강물이 맑다.", "꽃이 아름답다.", "바람이 시원하다.", "햇살이 따뜻하다."],
+        startTime: 0,
+
+        init() {
+            this.feedbackEl.textContent = '';
+            this.inputEl.value = '';
+            this.inputEl.disabled = true;
+            this.sentenceEl.textContent = "버튼을 누르면 시작합니다.";
+        },
+        start() {
+            this.inputEl.disabled = false;
+            this.inputEl.value = '';
+            const sentence = this.sentences[Math.floor(Math.random() * this.sentences.length)];
+            this.sentenceEl.textContent = sentence;
+            this.inputEl.focus();
+            this.startTime = Date.now();
+            this.inputEl.addEventListener('input', () => this.checkTyping());
+        },
+        checkTyping() {
+            const sentence = this.sentenceEl.textContent;
+            const typed = this.inputEl.value;
+            if (sentence === typed) {
+                const endTime = Date.now();
+                const time = (endTime - this.startTime) / 1000;
+                const speed = Math.round((typed.length * 60) / time);
+                this.feedbackEl.textContent = `완료! 속도: ${speed}타/분`;
+                this.inputEl.disabled = true;
+            }
+        }
     };
+    typing.startBtn.addEventListener('click', () => typing.start());
 
     // --- 캔버스 게임 베이스 --- //
     const canvasGame = {
@@ -126,18 +194,101 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fallingSquare = {
         ...canvasGame,
-        // ... (중력 게임 로직, 이전과 동일, 생략)
+        canvasId: 'falling-square-canvas',
+        gameOverMsg: null,
+        player: { x: 50, y: 250, width: 20, height: 20, velocityY: 0, jump: -10, gravity: 0.5, onGround: true },
+        obstacles: [],
+        frame: 0,
+        state: { over: false },
+
+        init() {
+            this.canvas = document.getElementById(this.canvasId);
+            this.ctx = this.canvas.getContext('2d');
+            this.gameOverMsg = document.getElementById('falling-square-game-over');
+            
+            const handleAction = (e) => {
+                e.preventDefault();
+                if (this.state.over) {
+                    this.reset();
+                } else if (this.player.onGround) {
+                    this.player.velocityY = this.player.jump;
+                    this.player.onGround = false;
+                }
+            };
+
+            this.keyHandler = e => { if (e.code === 'Space') handleAction(e); };
+            this.touchHandler = e => handleAction(e);
+
+            document.addEventListener('keydown', this.keyHandler);
+            this.canvas.addEventListener('touchstart', this.touchHandler);
+            this.reset();
+        },
+        reset() {
+            this.state.over = false;
+            this.gameOverMsg.classList.add('hidden');
+            this.player.y = 250;
+            this.player.velocityY = 0;
+            this.player.onGround = true;
+            this.obstacles = [];
+            this.frame = 0;
+            if (!this.gameLoop) {
+                this.gameLoop = setInterval(() => this.update(), 1000 / 60);
+            }
+        },
+        update() {
+            if (this.state.over) return;
+            this.frame++;
+            
+            // Player physics
+            this.player.velocityY += this.player.gravity;
+            this.player.y += this.player.velocityY;
+            if (this.player.y >= 250) {
+                this.player.y = 250;
+                this.player.velocityY = 0;
+                this.player.onGround = true;
+            }
+
+            // Obstacles
+            if (this.frame % 90 === 0) {
+                const height = Math.random() * 100 + 50;
+                this.obstacles.push({ x: this.canvas.width, y: 0, width: 30, height: height });
+                this.obstacles.push({ x: this.canvas.width, y: height + 100, width: 30, height: this.canvas.height - height - 100 });
+            }
+            this.obstacles.forEach(o => o.x -= 3);
+            this.obstacles = this.obstacles.filter(o => o.x + o.width > 0);
+
+            // Collision
+            if (this.obstacles.some(o => this.player.x < o.x + o.width && this.player.x + this.player.width > o.x && this.player.y < o.y + o.height && this.player.y + this.player.height > o.y)) {
+                this.gameOver();
+            }
+
+            this.draw();
+        },
+        draw() {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.fillStyle = '#3498db';
+            this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
+            this.ctx.fillStyle = '#c0392b';
+            this.obstacles.forEach(o => this.ctx.fillRect(o.x, o.y, o.width, o.height));
+        },
+        gameOver() {
+            this.state.over = true;
+            this.gameOverMsg.classList.remove('hidden');
+        }
     };
 
     const noGuri = {
         ...canvasGame,
         canvasId: 'no-guri-canvas',
         player: { x: 50, y: 280, width: 20, height: 20, velocityY: 0, onGround: true, jump: -12, gravity: 0.6 },
-        villains: [], frame: 0, nextSpawnFrame: 0,
+        villains: [],
+        frame: 0,
+        nextSpawnFrame: 0,
 
         init() {
             this.canvas = document.getElementById(this.canvasId);
             this.ctx = this.canvas.getContext('2d');
+            
             const handleAction = e => {
                 e.preventDefault();
                 if (this.player.onGround) {
@@ -147,47 +298,78 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             this.keyHandler = e => { if (e.code === 'Space') handleAction(e); };
             this.touchHandler = e => handleAction(e);
+            
             document.addEventListener('keydown', this.keyHandler);
             this.canvas.addEventListener('touchstart', this.touchHandler);
             this.reset();
         },
         reset() {
-            this.player.y = 280; this.player.velocityY = 0; this.player.onGround = true;
-            this.villains = []; this.frame = 0; this.nextSpawnFrame = 60;
-            if (!this.gameLoop) this.gameLoop = setInterval(() => this.update(), 1000 / 60);
+            this.player.y = 280;
+            this.player.velocityY = 0;
+            this.player.onGround = true;
+            this.villains = [];
+            this.frame = 0;
+            this.nextSpawnFrame = 60;
+            if (!this.gameLoop) {
+                this.gameLoop = setInterval(() => this.update(), 1000 / 60);
+            }
         },
         update() {
             this.frame++;
+            
+            // Player physics
             this.player.velocityY += this.player.gravity;
             this.player.y += this.player.velocityY;
-            if (this.player.y >= 280) { this.player.y = 280; this.player.velocityY = 0; this.player.onGround = true; }
+            if (this.player.y >= 280) {
+                this.player.y = 280;
+                this.player.velocityY = 0;
+                this.player.onGround = true;
+            }
 
+            // Spawn villains
             if (this.frame > this.nextSpawnFrame) {
                 const speed = Math.random() * 4 + 7; // 7 ~ 11 사이의 속도
                 this.villains.push({ x: this.ctx.canvas.width, y: 280, width: 20, height: 20, speed: speed });
                 this.nextSpawnFrame = this.frame + Math.floor(Math.random() * 30) + 20; // 20 ~ 50 프레임마다 생성
             }
 
+            // Move and remove villains
             this.villains.forEach(v => v.x -= v.speed);
             this.villains = this.villains.filter(v => v.x + v.width > 0);
+
+            // Collision detection
             if (this.villains.some(v => v.x < this.player.x + this.player.width && v.x + v.width > this.player.x && v.y < this.player.y + this.player.height && v.height + v.y > this.player.y)) {
                 this.reset();
             }
+
             this.draw();
         },
-        draw() { /* ... */ }
+        draw() {
+            this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+            this.ctx.fillStyle = '#2ecc71'; // Green player
+            this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
+            this.ctx.fillStyle = '#e74c3c'; // Red villains
+            this.villains.forEach(v => this.ctx.fillRect(v.x, v.y, v.width, v.height));
+        }
     };
 
     const shooting1984 = {
         ...canvasGame,
         canvasId: 'shooting-1984-canvas',
-        gameOverMsg: null, player: null, bullets: [], enemies: [], frame: 0, score: 0, touchX: null, state: { over: false },
+        gameOverMsg: null,
+        player: null,
+        bullets: [],
+        enemies: [],
+        frame: 0,
+        score: 0,
+        touchX: null,
+        state: { over: false },
 
         init() {
             this.canvas = document.getElementById(this.canvasId);
             this.ctx = this.canvas.getContext('2d');
             this.gameOverMsg = document.getElementById('shooting-1984-game-over');
-
+            
             this.keyHandler = e => { if (e.code === 'Space' && this.state.over) { e.preventDefault(); this.reset(); } };
             this.touchHandler = e => {
                 e.preventDefault();
@@ -196,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const rect = this.canvas.getBoundingClientRect();
                 this.touchX = touch.clientX - rect.left;
             };
-            this.touchMoveHandler = e => {
+             this.touchMoveHandler = e => {
                 e.preventDefault();
                 const touch = e.touches[0];
                 const rect = this.canvas.getBoundingClientRect();
@@ -209,35 +391,98 @@ document.addEventListener('DOMContentLoaded', () => {
             this.reset();
         },
         reset() {
-            this.state.over = false; this.gameOverMsg.classList.add('hidden');
+            this.state.over = false;
+            this.gameOverMsg.classList.add('hidden');
             this.player = { x: this.canvas.width / 2 - 15, y: this.canvas.height - 60, width: 30, height: 30, speed: 5, cooldown: 0 };
-            this.bullets = []; this.enemies = []; this.frame = 0; this.score = 0; this.touchX = null;
-            if (!this.gameLoop) this.gameLoop = setInterval(() => this.update(), 1000 / 60);
+            this.bullets = [];
+            this.enemies = [];
+            this.frame = 0;
+            this.score = 0;
+            this.touchX = null;
+            if (!this.gameLoop) {
+                this.gameLoop = setInterval(() => this.update(), 1000 / 60);
+            }
         },
         update() {
             if (this.state.over) return;
-            this.frame++; this.handleInput(); this.updatePlayerAndShoot(); this.updateBullets(); this.updateEnemies(); this.checkCollisions(); this.draw();
+            this.frame++;
+            this.handleInput();
+            this.updatePlayerAndShoot();
+            this.updateBullets();
+            this.updateEnemies();
+            this.checkCollisions();
+            this.draw();
         },
         handleInput() {
             // Keyboard
             if (keyState['ArrowLeft'] && this.player.x > 0) this.player.x -= this.player.speed;
             if (keyState['ArrowRight'] && this.player.x < this.canvas.width - this.player.width) this.player.x += this.player.speed;
-            if (keyState['ArrowUp'] && this.player.y > 0) this.player.y -= this.player.speed;
-            if (keyState['ArrowDown'] && this.player.y < this.canvas.height - this.player.height) this.player.y += this.player.speed;
             
             // Touch
             if (this.touchX !== null) {
                 let targetX = this.touchX - this.player.width / 2;
                 targetX = Math.max(0, Math.min(this.canvas.width - this.player.width, targetX));
-                this.player.x += (targetX - this.player.x) * 0.4; // 부드러운 이동
+                this.player.x += (targetX - this.player.x) * 0.4; 
             }
         },
-        updatePlayerAndShoot() { /* ... */ },
-        updateBullets() { /* ... */ },
-        updateEnemies() { /* ... */ },
-        checkCollisions() { /* ... */ },
-        draw() { /* ... */ },
-        gameOver() { this.state.over = true; this.gameOverMsg.classList.remove('hidden'); clearInterval(this.gameLoop); this.gameLoop = null; }
+        updatePlayerAndShoot() {
+            this.player.cooldown--;
+            if (this.player.cooldown <= 0) {
+                this.bullets.push({ x: this.player.x + this.player.width / 2 - 2.5, y: this.player.y, width: 5, height: 15, speed: 7 });
+                this.player.cooldown = 20; // 3 shots per second
+            }
+        },
+        updateBullets() {
+            this.bullets.forEach(b => b.y -= b.speed);
+            this.bullets = this.bullets.filter(b => b.y + b.height > 0);
+        },
+        updateEnemies() {
+            if (this.frame % 40 === 0) {
+                this.enemies.push({ x: Math.random() * (this.canvas.width - 30), y: -30, width: 30, height: 30, speed: Math.random() * 2 + 2 });
+            }
+            this.enemies.forEach(e => e.y += e.speed);
+            this.enemies = this.enemies.filter(e => e.y < this.canvas.height);
+        },
+        checkCollisions() {
+            // Bullets hitting enemies
+            this.bullets.forEach((b, bi) => {
+                this.enemies.forEach((e, ei) => {
+                    if (b.x < e.x + e.width && b.x + b.width > e.x && b.y < e.y + e.height && b.y + b.height > e.y) {
+                        this.bullets.splice(bi, 1);
+                        this.enemies.splice(ei, 1);
+                        this.score += 10;
+                    }
+                });
+            });
+            // Enemies hitting player
+            if (this.enemies.some(e => e.x < this.player.x + this.player.width && e.x + e.width > this.player.x && e.y < this.player.y + this.player.height && e.y + e.height > this.player.y)) {
+                this.gameOver();
+            }
+        },
+        draw() {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            
+            // Player
+            this.ctx.fillStyle = '#00f';
+            this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
+            
+            // Bullets
+            this.ctx.fillStyle = '#ff0';
+            this.bullets.forEach(b => this.ctx.fillRect(b.x, b.y, b.width, b.height));
+
+            // Enemies
+            this.ctx.fillStyle = '#f00';
+            this.enemies.forEach(e => this.ctx.fillRect(e.x, e.y, e.width, e.height));
+            
+            // Score
+            this.ctx.fillStyle = '#fff';
+            this.ctx.font = '20px Arial';
+            this.ctx.fillText(`Score: ${this.score}`, 10, 25);
+        },
+        gameOver() {
+            this.state.over = true;
+            this.gameOverMsg.classList.remove('hidden');
+        }
     };
 
     // --- 게임 초기화 및 정리 --- //
@@ -255,4 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'no-guri': () => noGuri.cleanup(),
         'shooting-1984': () => shooting1984.cleanup(),
     };
+
+    // 초기화
+    showMainMenu();
 });
