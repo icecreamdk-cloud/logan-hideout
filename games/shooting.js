@@ -6,7 +6,7 @@ export const shooting = {
     gameOverMsg: null,
 
     // --- 게임 객체 및 상태 ---
-    player: { x: 220, y: 520, width: 40, height: 40, speed: 300 }, // 속도: 픽셀/초
+    player: { x: 0, y: 0, width: 40, height: 40, speed: 180 }, // 플레이어 속도 60% 감소 (300 -> 180)
     bullets: [],
     enemies: [],
     particles: [],
@@ -27,7 +27,6 @@ export const shooting = {
         this.ctx = this.canvas.getContext('2d');
         this.gameOverMsg = document.getElementById('shooting-1984-game-over');
         
-        // --- 이벤트 핸들러 정의 ---
         const handleRestart = (e) => {
             if (this.state.over) {
                 e.preventDefault();
@@ -35,14 +34,14 @@ export const shooting = {
             }
         };
         
+        // 터치 위치로 플레이어를 이동시키는 함수 (X축만)
         const movePlayerTo = (touch) => {
             const rect = this.canvas.getBoundingClientRect();
-            let newX = touch.clientX - rect.left - (this.player.width / 2);
-            let newY = touch.clientY - rect.top - (this.player.height / 2);
+            const touchX = touch.clientX - rect.left;
+            let newX = touchX - (this.player.width / 2);
             
-            // 캔버스 경계 내에 플레이어 위치를 제한합니다.
+            // X축 위치를 캔버스 경계 내로 제한합니다.
             this.player.x = Math.max(0, Math.min(this.canvas.width - this.player.width, newX));
-            this.player.y = Math.max(0, Math.min(this.canvas.height - this.player.height, newY));
         };
 
         this.keyHandler = (e) => { if (e.code === 'Space') handleRestart(e); };
@@ -62,7 +61,6 @@ export const shooting = {
             }
         };
 
-        // --- 리스너 등록 ---
         document.addEventListener('keydown', this.keyHandler);
         this.canvas.addEventListener('touchstart', this.touchStartHandler, { passive: false });
         this.canvas.addEventListener('touchmove', this.touchMoveHandler, { passive: false });
@@ -74,7 +72,8 @@ export const shooting = {
         this.state.over = false;
         this.gameOverMsg.classList.add('hidden');
         this.player.x = this.canvas.width / 2 - this.player.width / 2;
-        this.player.y = 520;
+        // Y 위치를 캔버스 하단으로 고정합니다.
+        this.player.y = this.canvas.height - this.player.height;
         this.bullets = [];
         this.enemies = [];
         this.particles = [];
@@ -86,40 +85,34 @@ export const shooting = {
     update(deltaTime) {
         if (this.state.over) return;
 
-        // --- 키보드 입력 처리 ---
         const moveDistance = this.player.speed * deltaTime;
         if (keyState['ArrowLeft'] && this.player.x > 0) this.player.x -= moveDistance;
         if (keyState['ArrowRight'] && this.player.x < this.canvas.width - this.player.width) this.player.x += moveDistance;
-        if (keyState['ArrowUp'] && this.player.y > 0) this.player.y -= moveDistance;
-        if (keyState['ArrowDown'] && this.player.y < this.canvas.height - this.player.height) this.player.y += moveDistance;
 
-        // --- 자동 발사 (시간 기반) ---
+        // 자동 발사 (속도 조절)
         this.fireTimer += deltaTime;
-        if (this.fireTimer > 0.15) { // 0.15초마다 발사
+        if (this.fireTimer > 0.25) { // 0.15초 -> 0.25초
             this.fireTimer = 0;
-            this.bullets.push({ x: this.player.x + this.player.width / 2 - 2.5, y: this.player.y, width: 5, height: 10, speed: 450 });
+            this.bullets.push({ x: this.player.x + this.player.width / 2 - 2.5, y: this.player.y, width: 5, height: 10, speed: 270 }); // 총알 속도 60% 감소 (450 -> 270)
         }
 
-        // --- 객체 위치 업데이트 (deltaTime 적용) ---
         this.bullets.forEach(b => b.y -= b.speed * deltaTime);
         this.enemies.forEach(e => e.y += e.speed * deltaTime);
         this.particles.forEach(p => { p.x += p.vx * deltaTime; p.y += p.vy * deltaTime; p.life -= deltaTime; });
 
-        // --- 적 생성 (시간 기반) ---
+        // 적 생성 (속도 조절)
         this.spawnTimer += deltaTime;
-        if (this.spawnTimer > 1.0) { // 1초마다 생성
+        if (this.spawnTimer > 1.67) { // 1.0초 -> 1.67초
             this.spawnTimer = 0;
             const x = Math.random() * (this.canvas.width - 30);
-            this.enemies.push({ x: x, y: -30, width: 30, height: 30, speed: 120 });
+            this.enemies.push({ x: x, y: -30, width: 30, height: 30, speed: 72 }); // 적 속도 60% 감소 (120 -> 72)
         }
 
-        // --- 객체 필터링 ---
         this.bullets = this.bullets.filter(b => b.y + b.height > 0);
         this.enemies = this.enemies.filter(e => e.y < this.canvas.height);
         this.particles = this.particles.filter(p => p.life > 0);
 
-        // --- 충돌 감지 ---
-        // 총알과 적
+        // 충돌 감지
         for (let i = this.bullets.length - 1; i >= 0; i--) {
             for (let j = this.enemies.length - 1; j >= 0; j--) {
                 const b = this.bullets[i];
@@ -129,14 +122,14 @@ export const shooting = {
                     this.enemies.splice(j, 1);
                     this.score += 10;
                     for (let k = 0; k < 15; k++) {
-                        this.particles.push({ x: e.x + e.width / 2, y: e.y + e.height / 2, vx: (Math.random() - 0.5) * 200, vy: (Math.random() - 0.5) * 200, size: Math.random() * 3 + 1, life: 0.5 });
+                        // 폭발 효과 속도 60% 감소
+                        this.particles.push({ x: e.x + e.width / 2, y: e.y + e.height / 2, vx: (Math.random() - 0.5) * 120, vy: (Math.random() - 0.5) * 120, size: Math.random() * 3 + 1, life: 0.5 });
                     }
                     break; 
                 }
             }
         }
 
-        // 플레이어와 적
         if (this.enemies.some(e => this.player.x < e.x + e.width && this.player.x + this.player.width > e.x && this.player.y < e.y + e.height && this.player.y + this.player.height > e.y)) {
             this.gameOver();
         }
