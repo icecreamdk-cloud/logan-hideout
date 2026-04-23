@@ -81,8 +81,14 @@ document.addEventListener('DOMContentLoaded', () => {
         checkAnswer() {
             if (this.answerEl.value !== '' && parseInt(this.answerEl.value) === this.num1 * this.num2) {
                 this.consecutiveCorrect++;
-                this.feedbackEl.textContent = `정답! (${this.consecutiveCorrect}번 연속)`;
-                this.generateProblem();
+                if (this.consecutiveCorrect >= 3) {
+                    this.feedbackEl.textContent = '';
+                    this.problemAreaEl.classList.add('hidden');
+                    this.passMessageEl.classList.remove('hidden');
+                } else {
+                    this.feedbackEl.textContent = `정답! (${this.consecutiveCorrect}/3)`;
+                    this.generateProblem();
+                }
             } else {
                 this.consecutiveCorrect = 0;
                 this.feedbackEl.textContent = '오답! 다시 시도하세요.';
@@ -99,10 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         answerEl: document.getElementById('english-answer'),
         submitBtn: document.getElementById('english-submit'),
         feedbackEl: document.getElementById('english-feedback'),
-        words: { 
-            "사과": "apple", "바나나": "banana", "고양이": "cat", "개": "dog", "집": "house", "책": "book", "차": "car", "의자": "chair", "책상": "desk", "컴퓨터": "computer",
-            "학교": "school", "학생": "student", "선생님": "teacher", "물": "water", "음식": "food", "친구": "friend", "사랑": "love", "세상": "world", "시간": "time", "가족": "family"
-        },
+        words: { "사과": "apple", "바나나": "banana", "고양이": "cat", "개": "dog", "집": "house", "책": "book", "차": "car", "의자": "chair", "책상": "desk", "컴퓨터": "computer" },
         currentWord: '',
         consecutiveCorrect: 0,
 
@@ -143,22 +146,21 @@ document.addEventListener('DOMContentLoaded', () => {
         startBtn: document.getElementById('typing-start'),
         sentences: ["하늘이 푸르다.", "강물이 맑다.", "꽃이 아름답다.", "바람이 시원하다.", "햇살이 따뜻하다."],
         startTime: 0,
-        typingHandler: null,
 
         init() {
             this.feedbackEl.textContent = '';
+            this.inputEl.value = '';
+            this.inputEl.disabled = true;
+            this.sentenceEl.textContent = "버튼을 누르면 시작합니다.";
+        },
+        start() {
             this.inputEl.disabled = false;
             this.inputEl.value = '';
             const sentence = this.sentences[Math.floor(Math.random() * this.sentences.length)];
             this.sentenceEl.textContent = sentence;
             this.inputEl.focus();
             this.startTime = Date.now();
-            
-            if (this.typingHandler) {
-                this.inputEl.removeEventListener('input', this.typingHandler);
-            }
-            this.typingHandler = () => this.checkTyping();
-            this.inputEl.addEventListener('input', this.typingHandler);
+            this.inputEl.addEventListener('input', () => this.checkTyping());
         },
         checkTyping() {
             const sentence = this.sentenceEl.textContent;
@@ -169,13 +171,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const speed = Math.round((typed.length * 60) / time);
                 this.feedbackEl.textContent = `완료! 속도: ${speed}타/분`;
                 this.inputEl.disabled = true;
-                if (this.typingHandler) {
-                    this.inputEl.removeEventListener('input', this.typingHandler);
-                    this.typingHandler = null;
-                }
             }
         }
     };
+    typing.startBtn.addEventListener('click', () => typing.start());
 
     // --- 캔버스 게임 베이스 --- //
     const canvasGame = {
@@ -197,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ...canvasGame,
         canvasId: 'falling-square-canvas',
         gameOverMsg: null,
-        player: { x: 50, y: 250, width: 20, height: 20, velocityY: 0, jump: -8, gravity: 0.4, onGround: true },
+        player: { x: 50, y: 250, width: 20, height: 20, velocityY: 0, jump: -10, gravity: 0.5, onGround: true },
         obstacles: [],
         frame: 0,
         state: { over: false },
@@ -329,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Spawn villains
             if (this.frame > this.nextSpawnFrame) {
-                const speed = Math.random() * 2 + 3.5; // 3.5 ~ 5.5 사이의 속도 (기존 대비 50% 감소)
+                const speed = Math.random() * 4 + 7; // 7 ~ 11 사이의 속도
                 this.villains.push({ x: this.ctx.canvas.width, y: 280, width: 20, height: 20, speed: speed });
                 this.nextSpawnFrame = this.frame + Math.floor(Math.random() * 30) + 20; // 20 ~ 50 프레임마다 생성
             }
@@ -461,7 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         draw() {
-            this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.canvas.height);
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             
             // Player
             this.ctx.fillStyle = '#00f';
