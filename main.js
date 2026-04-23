@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ...canvasGame,
         canvasId: 'falling-square-canvas',
         gameOverMsg: null,
-        player: { x: 50, y: 250, width: 20, height: 20, velocityY: 0, jump: -12, gravity: 0.8, onGround: true },
+        player: { x: 50, y: 250, width: 20, height: 20, velocityY: 0, jump: -8, gravity: 0.4, onGround: true },
         obstacles: [],
         frame: 0,
         state: { over: false },
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.draw();
         },
         draw() {
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
             this.ctx.fillStyle = '#3498db';
             this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
             this.ctx.fillStyle = '#c0392b';
@@ -438,7 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         draw() {
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
             this.ctx.fillStyle = '#00f';
             this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
             this.ctx.fillStyle = '#ff0';
