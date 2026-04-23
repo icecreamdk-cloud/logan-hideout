@@ -31,7 +31,8 @@ export const multiplication = {
     },
 
     checkAnswer() {
-        if (this.answerEl.value !== '' && parseInt(this.answerEl.value) === this.num1 * this.num2) {
+        const userAnswer = this.answerEl.value.trim();
+        if (userAnswer !== '' && parseInt(userAnswer) === this.num1 * this.num2) {
             this.consecutiveCorrect++;
             this.feedbackEl.textContent = `정답! (${this.consecutiveCorrect}번 연속)`;
             this.generateProblem();

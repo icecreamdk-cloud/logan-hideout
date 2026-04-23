@@ -44,7 +44,7 @@ export const english = {
     },
 
     checkAnswer() {
-        if (this.answerEl.value.toLowerCase() === this.words[this.currentWord]) {
+        if (this.answerEl.value.trim().toLowerCase() === this.words[this.currentWord]) {
             this.consecutiveCorrect++;
             this.feedbackEl.textContent = `정답!`;
             this.generateProblem();
