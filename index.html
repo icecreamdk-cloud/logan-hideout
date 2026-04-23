@@ -14,7 +14,7 @@
     <!-- 메인 메뉴 -->
     <main id="main-menu">
         <div class="game-list">
-            <a href="#" class="game-link" data-game="multiplication">곱셈 게임</a>
+            <a href="#" class="game-link" data-game="multiplication">구구단 게임</a>
             <a href="#" class="game-link" data-game="english">영어 단어 퀴즈</a>
             <a href="#" class="game-link" data-game="typing">한컴 타자 연습</a>
             <a href="#" class="game-link" data-game="falling-square">낙하 네모</a>
@@ -25,11 +25,13 @@
 
     <!-- 게임 화면 -->
     <div id="game-container" class="hidden">
-        <button id="back-to-menu">홈으로</button>
         <div id="game-content">
-            <!-- 곱셈 게임 -->
+            <!-- 구구단 게임 -->
             <div id="multiplication-game" class="game-view hidden">
-                <h3>곱셈 게임</h3>
+                <div class="game-header">
+                    <h3>구구단 게임</h3>
+                    <button class="back-to-menu-btn">홈으로</button>
+                </div>
                 <p>4~9단 구구단 문제를 3번 연속으로 맞히면 통과입니다.</p>
                 <div id="multiplication-problem-area">
                     <div id="multiplication-problem" class="problem"></div>
@@ -46,7 +48,10 @@
 
             <!-- 영어 단어 퀴즈 -->
             <div id="english-game" class="game-view hidden">
-                <h3>영어 단어 퀴즈</h3>
+                <div class="game-header">
+                    <h3>영어 단어 퀴즈</h3>
+                    <button class="back-to-menu-btn">홈으로</button>
+                </div>
                 <p>한글 단어를 보고 영어로 답하세요. (3번 연속 정답 시 통과)</p>
                 <div id="english-problem" class="problem"></div>
                 <input type="text" id="english-answer" placeholder="영단어">
@@ -56,7 +61,10 @@
 
             <!-- 한컴 타자 연습 -->
             <div id="typing-game" class="game-view hidden">
-                <h3>한컴 타자 연습</h3>
+                <div class="game-header">
+                    <h3>한컴 타자 연습</h3>
+                    <button class="back-to-menu-btn">홈으로</button>
+                </div>
                 <p>아래 문장을 따라치고 타자 속도를 확인해보세요.</p>
                 <div id="typing-sentence" class="problem"></div>
                 <textarea id="typing-input" rows="3" placeholder="여기에 문장을 입력하세요..."></textarea>
@@ -66,7 +74,10 @@
 
             <!-- 낙하 네모 게임 -->
             <div id="falling-square-game" class="game-view hidden">
-                <h3>낙하 네모</h3>
+                 <div class="game-header">
+                    <h3>낙하 네모</h3>
+                    <button class="back-to-menu-btn">홈으로</button>
+                </div>
                 <p>장애물을 피하세요! (PC: 스페이스, 모바일: 터치)</p>
                 <div class="canvas-container">
                     <canvas id="falling-square-canvas" width="480" height="320"></canvas>
@@ -79,14 +90,20 @@
 
             <!-- 너구리 게임 -->
             <div id="no-guri-game" class="game-view hidden">
-                <h3>너구리</h3>
+                <div class="game-header">
+                    <h3>너구리</h3>
+                    <button class="back-to-menu-btn">홈으로</button>
+                </div>
                 <p>악당을 뛰어넘으세요! (PC: 스페이스, 모바일: 터치)</p>
                 <canvas id="no-guri-canvas" width="480" height="320"></canvas>
             </div>
 
             <!-- 1984 슈팅 게임 -->
             <div id="shooting-1984-game" class="game-view hidden">
-                <h3>1984</h3>
+                 <div class="game-header">
+                    <h3>1984</h3>
+                    <button class="back-to-menu-btn">홈으로</button>
+                </div>
                 <p>자동 발사! PC: 방향키, 모바일: 터치 이동</p>
                  <div class="canvas-container">
                     <canvas id="shooting-1984-canvas" width="480" height="600"></canvas>
