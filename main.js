@@ -5,6 +5,9 @@ import { gravity } from './games/gravity.js';
 import { jumping } from './games/jumping.js';
 import { shooting } from './games/shooting.js';
 
+// --- 상태 관리 (모듈 레벨) --- //
+export const keyState = {}; // 키보드 상태 (전역으로 export)
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM 요소 --- //
     const mainMenu = document.getElementById('main-menu');
@@ -13,8 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameLinks = document.querySelectorAll('.game-link');
     const gameViews = document.querySelectorAll('.game-view');
 
-    // --- 상태 관리 --- //
-    export const keyState = {}; // 키보드 상태 (슈팅 게임 등에서 사용)
+    // --- 상태 관리 (DOM 로드 후) --- //
     let activeGame = null;       // 현재 활성화된 게임 객체
     let mainGameLoopId = null;   // requestAnimationFrame ID
 
@@ -23,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'multiplication': multiplication,
         'english': english,
         'typing': typing,
-        'falling-square': gravity, // HTML의 data-game 속성과 매칭
+        'falling-square': gravity,
         'no-guri': jumping,
         'shooting-1984': shooting
     };
