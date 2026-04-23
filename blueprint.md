@@ -1,27 +1,27 @@
-# Logan's Hideout (로건의 아지트)
+# 로건의 아지트 (Logan's Hideout)
 
-## Overview
+## 개요
 
-A simple and clean educational website for children, featuring a unified collection of learning and mini-games. The application uses a single-page application (SPA) model where selecting a game from the main list hides the menu and displays the selected game's content.
+어린이를 위한 깔끔하고 직관적인 교육용 웹사이트입니다. 학습과 미니게임을 하나의 메뉴에서 즐길 수 있는 싱글 페이지 애플리케이션(SPA) 모델을 사용합니다.
 
-## Style and Design
+## 스타일 및 디자인
 
-*   **Theme:** Light mode with a simple, high-contrast color palette for readability.
-*   **Typography:** Standard, easy-to-read sans-serif fonts.
-*   **Layout:** A single, unified game menu is presented to the user. Clicking a game title navigates to that game's view. A "Back" button is provided to return to the main menu.
-*   **Visuals:** Canvas is used for dynamic games like "Falling Square" and "NO-Guri".
+*   **테마:** 가독성을 위한 심플하고 대비가 높은 라이트 모드 테마.
+*   **타이포그래피:** 일반적인 한글 산세리프 폰트를 사용하여 가독성을 높입니다.
+*   **레이아웃:** 사용자가 모든 게임을 한눈에 볼 수 있는 단일 메뉴를 제공합니다. 게임을 클릭하면 해당 게임 화면으로 전환되며, '뒤로가기' 버튼으로 메뉴로 돌아올 수 있습니다.
+*   **시각 요소:** 동적인 게임(낙하 네모, 너구리, 1984)을 위해 캔버스를 사용합니다.
 
-## Features
+## 기능
 
-### Main Menu
+### 메인 메뉴
 
-*   Displays a single, combined list of all available games.
+*   모든 게임이 통합된 단일 목록을 표시합니다.
 
-### Games
+### 게임 목록
 
-*   **Multiplication Game:** Random multiplication problems (4-9), pass after 3 consecutive correct answers.
-*   **English Word Game:** Translate 4th-grade level Korean words to English. Pass after 3 consecutive correct answers.
-*   **Korean Typing Game:** Type a 3rd-grade level Korean sentence and see the typing speed (WPM).
-*   **Falling Square:** A Flappy Bird clone. A proper game-over and restart mechanic is implemented.
-*   **NO-Guri:** A platformer where a circle jumps over triangle villains.
-*   **+/- Game:** Solve addition/subtraction problems within 5 seconds, pass after 3 consecutive correct answers.
+*   **곱셈 게임:** 4~9단의 구구단 문제가 랜덤으로 출제되며, 3번 연속 정답 시 통과합니다.
+*   **영어 단어 퀴즈:** 초등 4학년 수준의 한글 단어를 영어로 번역합니다. 3번 연속 정답 시 통과합니다.
+*   **한컴 타자 연습:** 초등 3학년 수준의 문장을 따라 치며 타자 속도(타/분)를 측정합니다.
+*   **낙하 네모:** 장애물을 피하는 플래피 버드 클론 게임입니다. 정상적인 게임 오버 및 재시작 기능이 구현되어 있습니다.
+*   **너구리:** 동그라미 캐릭터가 삼각형 악당을 점프로 피하는 플랫포머 게임입니다.
+*   **1984 (신규):** 1942 스타일의 비행기 슈팅 게임입니다. 위에서 내려오는 적들을 격추합니다.

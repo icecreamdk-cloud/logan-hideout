@@ -1,94 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logan's Hideout (로건의 아지트)</title>
+    <title>로건의 아지트</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <h1>Logan's Hideout (로건의 아지트)</h1>
+        <h1>로건의 아지트</h1>
     </header>
 
-    <!-- Main Menu View -->
+    <!-- 메인 메뉴 -->
     <main id="main-menu">
         <section class="game-list-container">
-            <h2>Choose a Game</h2>
+            <h2>게임 선택</h2>
             <div class="game-list">
-                <a href="#" class="game-link" data-game="multiplication">Multiplication Game</a>
-                <a href="#" class="game-link" data-game="english">English Word Game</a>
-                <a href="#" class="game-link" data-game="typing">Korean Typing</a>
-                <a href="#" class="game-link" data-game="falling-square">Falling Square</a>
-                <a href="#" class="game-link" data-game="no-guri">NO-Guri</a>
-                <a href="#" class="game-link" data-game="plus-minus">+/- Game</a>
+                <a href="#" class="game-link" data-game="multiplication">곱셈 게임</a>
+                <a href="#" class="game-link" data-game="english">영어 단어 퀴즈</a>
+                <a href="#" class="game-link" data-game="typing">한컴 타자 연습</a>
+                <a href="#" class="game-link" data-game="falling-square">낙하 네모</a>
+                <a href="#" class="game-link" data-game="no-guri">너구리</a>
+                <a href="#" class="game-link" data-game="shooting-1984">1984 비행기 게임</a>
             </div>
         </section>
     </main>
 
-    <!-- Game Views -->
+    <!-- 게임 화면 -->
     <div id="game-container" class="hidden">
-        <button id="back-to-menu">Back to Menu</button>
+        <button id="back-to-menu">메뉴로 돌아가기</button>
         <div id="game-content">
-            <!-- Multiplication Game -->
+            <!-- 곱셈 게임 -->
             <div id="multiplication-game" class="game-view hidden">
-                <h3>Multiplication Game</h3>
-                <p>Answer 3 random multiplication problems (4-9) in a row to pass.</p>
+                <h3>곱셈 게임</h3>
+                <p>4~9단 구구단 문제를 3번 연속으로 맞히면 통과입니다.</p>
                 <div id="multiplication-problem" class="problem"></div>
-                <input type="number" id="multiplication-answer" placeholder="Answer">
-                <button id="multiplication-submit">Submit</button>
+                <input type="number" id="multiplication-answer" placeholder="정답">
+                <button id="multiplication-submit">제출</button>
                 <p id="multiplication-feedback"></p>
             </div>
 
-            <!-- English Word Game -->
+            <!-- 영어 단어 퀴즈 -->
             <div id="english-game" class="game-view hidden">
-                <h3>English Word Game</h3>
-                <p>Translate Korean words to English (3 in a row).</p>
+                <h3>영어 단어 퀴즈</h3>
+                <p>한글 단어를 보고 영어로 답하세요. (3번 연속 정답 시 통과)</p>
                 <div id="english-problem" class="problem"></div>
-                <input type="text" id="english-answer" placeholder="English word">
-                <button id="english-submit">Submit</button>
+                <input type="text" id="english-answer" placeholder="영단어">
+                <button id="english-submit">제출</button>
                 <p id="english-feedback"></p>
             </div>
 
-            <!-- Korean Typing Game -->
+            <!-- 한컴 타자 연습 -->
             <div id="typing-game" class="game-view hidden">
-                <h3>Korean Typing</h3>
-                <p>Type the sentence below and see your speed.</p>
+                <h3>한컴 타자 연습</h3>
+                <p>아래 문장을 따라치고 타자 속도를 확인해보세요.</p>
                 <div id="typing-sentence" class="problem"></div>
-                <textarea id="typing-input" rows="3" placeholder="Type the sentence here..."></textarea>
-                <button id="typing-start">Start</button>
+                <textarea id="typing-input" rows="3" placeholder="여기에 문장을 입력하세요..."></textarea>
+                <button id="typing-start">시작</button>
                 <p id="typing-feedback"></p>
             </div>
 
-            <!-- Falling Square Game -->
+            <!-- 낙하 네모 게임 -->
             <div id="falling-square-game" class="game-view hidden">
-                <h3>Falling Square</h3>
-                <p>Press the space bar to jump and avoid the obstacles.</p>
+                <h3>낙하 네모</h3>
+                <p>스페이스 바를 눌러 장애물을 피하세요.</p>
                 <div class="canvas-container">
                     <canvas id="falling-square-canvas" width="480" height="320"></canvas>
                     <div id="falling-square-game-over" class="game-over-message hidden">
-                        Game Over
-                        <span>Press Space to Restart</span>
+                        게임 오버
+                        <span>스페이스를 눌러 다시 시작</span>
                     </div>
                 </div>
             </div>
 
-            <!-- NO-Guri Game -->
+            <!-- 너구리 게임 -->
             <div id="no-guri-game" class="game-view hidden">
-                <h3>NO-Guri</h3>
-                <p>Press the space bar to jump over the villains.</p>
+                <h3>너구리</h3>
+                <p>스페이스 바를 눌러 악당을 뛰어넘으세요.</p>
                 <canvas id="no-guri-canvas" width="480" height="320"></canvas>
             </div>
 
-            <!-- +/- Game -->
-            <div id="plus-minus-game" class="game-view hidden">
-                <h3>+/- Game</h3>
-                <p>Solve the problem in 5 seconds. Get 3 in a row to pass.</p>
-                <div id="plus-minus-problem" class="problem"></div>
-                <div id="timer-bar-container"><div id="timer-bar"></div></div>
-                <input type="number" id="plus-minus-answer" placeholder="Answer">
-                <button id="plus-minus-submit">Submit</button>
-                <p id="plus-minus-feedback"></p>
+            <!-- 1984 슈팅 게임 -->
+            <div id="shooting-1984-game" class="game-view hidden">
+                <h3>1984</h3>
+                <p>방향키로 움직이고 스페이스 바로 총알을 발사하세요!</p>
+                 <div class="canvas-container">
+                    <canvas id="shooting-1984-canvas" width="480" height="600"></canvas>
+                    <div id="shooting-1984-game-over" class="game-over-message hidden">
+                        게임 오버
+                        <span>스페이스를 눌러 다시 시작</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
