@@ -1,14 +1,19 @@
-
-import { keyState } from '../main.js';
-
 export const gravity = {
     canvas: null,
     ctx: null,
     gameOverMsg: null,
-    player: { x: 50, y: 150, width: 20, height: 20, velocityY: 0, gravity: 0.5, jump: -8 },
+    player: {
+        x: 50, y: 150, width: 20, height: 20,
+        velocityY: 0,
+        jumpForce: 450, // 점프 힘 (픽셀/초)
+        gravity: 1400   // 중력 가속도 (픽셀/초^2)
+    },
     obstacles: [],
-    frame: 0,
+    obstacleSpeed: 180, // 장애물 이동 속도 (픽셀/초)
+    spawnTimer: 0,
+    nextSpawnTime: 1.5, // 첫 장애물은 1.5초 후 등장
     state: { over: false },
+
     keyHandler: null,
     touchHandler: null,
 
@@ -18,25 +23,21 @@ export const gravity = {
         this.gameOverMsg = document.getElementById('falling-square-game-over');
         this.reset();
 
-        // 점프 동작을 처리하는 함수
         const handleJump = (e) => {
-            e.preventDefault(); // 터치 시 확대/스크롤 및 스페이스바 스크롤 방지
+            e.preventDefault();
             if (this.state.over) {
                 this.reset();
             } else {
-                // 플레이어가 빠르게 상승 중일 때는 점프를 막아 부드러운 조작감을 만듭니다.
-                if (this.player.velocityY > -5) { 
-                   this.player.velocityY = this.player.jump;
-                }
+                this.player.velocityY = -this.player.jumpForce;
             }
         };
 
         this.keyHandler = e => { if (e.code === 'Space') handleJump(e); };
         this.touchHandler = e => handleJump(e);
 
-        // document 전체에 이벤트 리스너를 추가하여 화면 어디를 누르든 반응하도록 합니다.
+        // canvas에 이벤트 리스너를 다시 연결합니다.
         document.addEventListener('keydown', this.keyHandler);
-        document.addEventListener('touchstart', this.touchHandler, { passive: false }); // preventDefault를 사용하므로 passive: false 설정
+        this.canvas.addEventListener('touchstart', this.touchHandler, { passive: false });
     },
 
     reset() {
@@ -45,43 +46,42 @@ export const gravity = {
         this.player.y = 150;
         this.player.velocityY = 0;
         this.obstacles = [];
-        this.frame = 0;
+        this.spawnTimer = 0;
+        this.nextSpawnTime = 1.5;
     },
 
-    update() {
+    update(deltaTime) {
         if (this.state.over) return;
-        this.frame++;
 
-        // 플레이어 물리
-        this.player.velocityY += this.player.gravity;
-        this.player.y += this.player.velocityY;
+        // --- 플레이어 물리 (deltaTime 적용) ---
+        this.player.velocityY += this.player.gravity * deltaTime;
+        this.player.y += this.player.velocityY * deltaTime;
 
-        // 바닥과 천장 충돌 처리 (게임오버 대신 멈춤)
-        if (this.player.y > this.canvas.height - this.player.height) {
-            this.player.y = this.canvas.height - this.player.height;
-            this.player.velocityY = 0;
-        }
-        if (this.player.y < 0) {
-           this.player.y = 0;
-           this.player.velocityY = 0;
+        // --- 충돌 감지 ---
+        // 바닥/천장 충돌 시 게임오버
+        if (this.player.y > this.canvas.height - this.player.height || this.player.y < 0) {
+            this.gameOver();
         }
 
-        // 장애물 생성
-        if (this.frame % 90 === 0) {
-            const gapHeight = 120;
-            const gapY = Math.random() * (this.canvas.height - gapHeight);
-            this.obstacles.push({ x: this.canvas.width, y: 0, width: 40, height: gapY, type: 'top' });
-            this.obstacles.push({ x: this.canvas.width, y: gapY + gapHeight, width: 40, height: this.canvas.height - gapY - gapHeight, type: 'bottom' });
-        }
-
-        // 장애물 이동
-        this.obstacles.forEach(o => o.x -= 3);
-        this.obstacles = this.obstacles.filter(o => o.x + o.width > 0);
-
-        // 장애물 충돌 감지
+        // 장애물 충돌
         if (this.obstacles.some(o => this.player.x < o.x + o.width && this.player.x + this.player.width > o.x && this.player.y < o.y + o.height && this.player.y + this.player.height > o.y)) {
             this.gameOver();
         }
+
+        // --- 장애물 관리 (deltaTime 적용) ---
+        this.spawnTimer += deltaTime;
+        if (this.spawnTimer > this.nextSpawnTime) {
+            const gapHeight = 120;
+            const gapY = Math.random() * (this.canvas.height - gapHeight);
+            this.obstacles.push({ x: this.canvas.width, y: 0, width: 40, height: gapY });
+            this.obstacles.push({ x: this.canvas.width, y: gapY + gapHeight, width: 40, height: this.canvas.height - gapY - gapHeight });
+            
+            this.spawnTimer = 0;
+            this.nextSpawnTime = 1.5; // 장애물은 1.5초마다 생성
+        }
+
+        this.obstacles.forEach(o => o.x -= this.obstacleSpeed * deltaTime);
+        this.obstacles = this.obstacles.filter(o => o.x + o.width > 0);
     },
 
     draw() {
@@ -98,9 +98,8 @@ export const gravity = {
     },
 
     cleanup() {
-        // document에 추가했던 이벤트 리스너를 깨끗하게 제거합니다.
         if (this.keyHandler) document.removeEventListener('keydown', this.keyHandler);
-        if (this.touchHandler) document.removeEventListener('touchstart', this.touchHandler);
+        if (this.touchHandler) this.canvas.removeEventListener('touchstart', this.touchHandler);
         this.keyHandler = null;
         this.touchHandler = null;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);

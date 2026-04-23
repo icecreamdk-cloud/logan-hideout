@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 상태 관리 (DOM 로드 후) --- //
     let activeGame = null;       // 현재 활성화된 게임 객체
     let mainGameLoopId = null;   // requestAnimationFrame ID
+    let lastTime = 0;            // DeltaTime 계산을 위한 마지막 시간 저장
 
     // --- 게임 맵 --- //
     const games = {
@@ -30,10 +31,18 @@ document.addEventListener('DOMContentLoaded', () => {
         'shooting-1984': shooting
     };
 
-    // --- 중앙 게임 루프 --- //
-    function mainGameLoop() {
+    // --- 중앙 게임 루프 (DeltaTime 적용) --- //
+    function mainGameLoop(timestamp) {
+        if (lastTime === 0) {
+            lastTime = timestamp;
+        }
+        // 프레임 간의 시간 차이를 계산 (초 단위)
+        const deltaTime = (timestamp - lastTime) / 1000;
+        lastTime = timestamp;
+
         if (activeGame && activeGame.update) {
-            activeGame.update();
+            // 모든 게임의 update 함수에 deltaTime을 전달합니다.
+            activeGame.update(deltaTime);
         }
         if (activeGame && activeGame.draw) {
             activeGame.draw();
@@ -50,7 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startMainGameLoop() {
         if (!mainGameLoopId) {
-            mainGameLoop();
+            lastTime = 0; // 루프를 시작할 때 lastTime을 초기화합니다.
+            mainGameLoopId = requestAnimationFrame(mainGameLoop);
         }
     }
 
@@ -66,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function showGame(gameId) {
         cleanupCurrentGame(); // 이전 게임 정리
 
-        // UI 전환
         mainMenu.classList.add('hidden');
         gameContainer.classList.remove('hidden');
         gameViews.forEach(view => view.classList.add('hidden'));
@@ -75,11 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
             gameView.classList.remove('hidden');
         }
 
-        // 새 게임 시작
         activeGame = games[gameId];
         if (activeGame) {
             activeGame.init();
-            // 캔버스 게임인 경우에만 메인 루프 시작
             if (activeGame.update && activeGame.draw) {
                 startMainGameLoop();
             }

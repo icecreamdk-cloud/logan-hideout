@@ -3,10 +3,17 @@ import { keyState } from '../main.js';
 export const jumping = {
     canvas: null,
     ctx: null,
-    player: { x: 50, y: 280, width: 20, height: 20, velocityY: 0, onGround: true, jump: -12, gravity: 0.6 },
+    player: {
+        x: 50, y: 280, width: 20, height: 20, 
+        velocityY: 0, onGround: true, 
+        jumpForce: 700, // 점프 힘 (픽셀/초)
+        gravity: 2000 // 중력 가속도 (픽셀/초^2)
+    },
     villains: [],
-    frame: 0,
-    nextSpawnFrame: 0,
+    spawnTimer: 0,
+    nextSpawnTime: 0,
+    
+    // 이벤트 핸들러 참조
     keyHandler: null,
     touchHandler: null,
 
@@ -16,9 +23,9 @@ export const jumping = {
         this.reset();
 
         const handleAction = e => {
-            e.preventDefault(); // 스크롤 및 확대 방지
+            e.preventDefault();
             if (this.player.onGround) {
-                this.player.velocityY = this.player.jump;
+                this.player.velocityY = -this.player.jumpForce;
                 this.player.onGround = false;
             }
         };
@@ -26,9 +33,9 @@ export const jumping = {
         this.keyHandler = e => { if (e.code === 'Space') handleAction(e); };
         this.touchHandler = e => handleAction(e);
 
-        // document에 이벤트 리스너를 연결하여 전체 화면 터치 지원
+        // document 대신 canvas에 이벤트 리스너를 다시 연결합니다.
         document.addEventListener('keydown', this.keyHandler);
-        document.addEventListener('touchstart', this.touchHandler, { passive: false });
+        this.canvas.addEventListener('touchstart', this.touchHandler, { passive: false });
     },
 
     reset() {
@@ -36,63 +43,52 @@ export const jumping = {
         this.player.velocityY = 0;
         this.player.onGround = true;
         this.villains = [];
-        this.frame = 0;
-        this.nextSpawnFrame = 60;
+        this.spawnTimer = 0;
+        this.nextSpawnTime = 1; // 1초 후에 첫 장애물 등장
     },
 
-    update() {
-        this.frame++;
-        
-        // Player physics
-        this.player.velocityY += this.player.gravity;
-        this.player.y += this.player.velocityY;
+    update(deltaTime) {
+        // --- 플레이어 로직 ---
+        this.player.velocityY += this.player.gravity * deltaTime;
+        this.player.y += this.player.velocityY * deltaTime;
 
-        // Ground collision
         if (this.player.y >= 280) {
             this.player.y = 280;
             this.player.velocityY = 0;
             this.player.onGround = true;
         }
 
-        // Villain generation
-        if (this.frame > this.nextSpawnFrame) {
-            const speed = Math.random() * 2 + 3.5;
+        // --- 장애물 로직 ---
+        this.spawnTimer += deltaTime;
+        if (this.spawnTimer > this.nextSpawnTime) {
+            const speed = (Math.random() * 100 + 200); // 200-300 픽셀/초
             this.villains.push({ x: this.canvas.width, y: 280, width: 20, height: 20, speed: speed });
-            this.nextSpawnFrame = this.frame + Math.floor(Math.random() * 60) + 30;
+            this.spawnTimer = 0;
+            this.nextSpawnTime = Math.random() * 0.8 + 0.5; // 0.5초 ~ 1.3초 사이
         }
 
-        // Villain movement
-        this.villains.forEach(v => v.x -= v.speed);
+        this.villains.forEach(v => v.x -= v.speed * deltaTime);
         this.villains = this.villains.filter(v => v.x + v.width > 0);
 
-        // Collision detection
+        // --- 충돌 감지 ---
         if (this.villains.some(v => v.x < this.player.x + this.player.width && v.x + v.width > this.player.x && v.y < this.player.y + this.player.height && v.height + v.y > this.player.y)) {
-            this.reset(); // Game over, so reset
+            this.reset();
         }
     },
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // Draw player
         this.ctx.fillStyle = '#2ecc71';
         this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
-        
-        // Draw villains
         this.ctx.fillStyle = '#e74c3c';
         this.villains.forEach(v => this.ctx.fillRect(v.x, v.y, v.width, v.height));
     },
 
     cleanup() {
-        // document에서 이벤트 리스너를 제거하도록 수정
-        if (this.keyHandler) {
-            document.removeEventListener('keydown', this.keyHandler);
-            this.keyHandler = null;
-        }
-        if (this.touchHandler) {
-            document.removeEventListener('touchstart', this.touchHandler);
-            this.touchHandler = null;
-        }
+        if (this.keyHandler) document.removeEventListener('keydown', this.keyHandler);
+        if (this.touchHandler) this.canvas.removeEventListener('touchstart', this.touchHandler);
+        this.keyHandler = null;
+        this.touchHandler = null;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 };
