@@ -51,7 +51,7 @@ export const english = {
     checkAnswer() {
         if (this.answerEl.value.trim().toLowerCase() === this.words[this.currentWord]) {
             this.consecutiveCorrect++;
-            this.feedbackEl.textContent = `정답!`;
+            this.feedbackEl.textContent = `정답! (${this.consecutiveCorrect}번 연속)`;
             this.generateProblem();
         } else {
             this.consecutiveCorrect = 0;
