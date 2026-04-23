@@ -81,14 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
         checkAnswer() {
             if (this.answerEl.value !== '' && parseInt(this.answerEl.value) === this.num1 * this.num2) {
                 this.consecutiveCorrect++;
-                if (this.consecutiveCorrect >= 3) {
-                    this.feedbackEl.textContent = '';
-                    this.problemAreaEl.classList.add('hidden');
-                    this.passMessageEl.classList.remove('hidden');
-                } else {
-                    this.feedbackEl.textContent = `정답! (${this.consecutiveCorrect}/3)`;
-                    this.generateProblem();
-                }
+                this.feedbackEl.textContent = `정답! (${this.consecutiveCorrect}번 연속)`;
+                this.generateProblem();
             } else {
                 this.consecutiveCorrect = 0;
                 this.feedbackEl.textContent = '오답! 다시 시도하세요.';
@@ -460,7 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         draw() {
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
             
             // Player
             this.ctx.fillStyle = '#00f';
