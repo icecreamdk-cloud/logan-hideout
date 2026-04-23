@@ -1,8 +1,8 @@
 export const english = {
-    problemEl: document.getElementById('english-problem'),
-    answerEl: document.getElementById('english-answer'),
-    submitBtn: document.getElementById('english-submit'),
-    feedbackEl: document.getElementById('english-feedback'),
+    problemEl: null,
+    answerEl: null,
+    submitBtn: null,
+    feedbackEl: null,
     words: {
         "사과": "apple", "바나나": "banana", "고양이": "cat", "개": "dog", "집": "house",
         "책": "book", "차": "car", "의자": "chair", "책상": "desk", "컴퓨터": "computer",
@@ -21,6 +21,11 @@ export const english = {
     submitHandler: null,
 
     init() {
+        this.problemEl = document.getElementById('english-problem');
+        this.answerEl = document.getElementById('english-answer');
+        this.submitBtn = document.getElementById('english-submit');
+        this.feedbackEl = document.getElementById('english-feedback');
+
         this.consecutiveCorrect = 0;
         this.feedbackEl.textContent = '';
         this.answerEl.value = '';

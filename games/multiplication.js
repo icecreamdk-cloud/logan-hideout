@@ -1,13 +1,18 @@
 export const multiplication = {
-    problemEl: document.getElementById('multiplication-problem'),
-    answerEl: document.getElementById('multiplication-answer'),
-    submitBtn: document.getElementById('multiplication-submit'),
-    feedbackEl: document.getElementById('multiplication-feedback'),
+    problemEl: null,
+    answerEl: null,
+    submitBtn: null,
+    feedbackEl: null,
     num1: 0, num2: 0, consecutiveCorrect: 0,
     enterHandler: null,
     submitHandler: null,
 
     init() {
+        this.problemEl = document.getElementById('multiplication-problem');
+        this.answerEl = document.getElementById('multiplication-answer');
+        this.submitBtn = document.getElementById('multiplication-submit');
+        this.feedbackEl = document.getElementById('multiplication-feedback');
+
         this.consecutiveCorrect = 0;
         this.feedbackEl.textContent = '';
         this.answerEl.value = '';
