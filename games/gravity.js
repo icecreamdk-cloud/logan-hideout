@@ -1,3 +1,4 @@
+
 import { keyState } from '../main.js';
 
 export const gravity = {
@@ -17,20 +18,25 @@ export const gravity = {
         this.gameOverMsg = document.getElementById('falling-square-game-over');
         this.reset();
 
+        // 점프 동작을 처리하는 함수
         const handleJump = (e) => {
-            e.preventDefault();
+            e.preventDefault(); // 터치 시 확대/스크롤 및 스페이스바 스크롤 방지
             if (this.state.over) {
                 this.reset();
             } else {
-                this.player.velocityY = this.player.jump;
+                // 플레이어가 빠르게 상승 중일 때는 점프를 막아 부드러운 조작감을 만듭니다.
+                if (this.player.velocityY > -5) { 
+                   this.player.velocityY = this.player.jump;
+                }
             }
         };
 
         this.keyHandler = e => { if (e.code === 'Space') handleJump(e); };
         this.touchHandler = e => handleJump(e);
 
+        // document 전체에 이벤트 리스너를 추가하여 화면 어디를 누르든 반응하도록 합니다.
         document.addEventListener('keydown', this.keyHandler);
-        this.canvas.addEventListener('touchstart', this.touchHandler);
+        document.addEventListener('touchstart', this.touchHandler, { passive: false }); // preventDefault를 사용하므로 passive: false 설정
     },
 
     reset() {
@@ -46,16 +52,21 @@ export const gravity = {
         if (this.state.over) return;
         this.frame++;
 
-        // Player physics
+        // 플레이어 물리
         this.player.velocityY += this.player.gravity;
         this.player.y += this.player.velocityY;
 
-        // Ground and ceiling collision
-        if (this.player.y > this.canvas.height - this.player.height || this.player.y < 0) {
-            this.gameOver();
+        // 바닥과 천장 충돌 처리 (게임오버 대신 멈춤)
+        if (this.player.y > this.canvas.height - this.player.height) {
+            this.player.y = this.canvas.height - this.player.height;
+            this.player.velocityY = 0;
+        }
+        if (this.player.y < 0) {
+           this.player.y = 0;
+           this.player.velocityY = 0;
         }
 
-        // Generate obstacles
+        // 장애물 생성
         if (this.frame % 90 === 0) {
             const gapHeight = 120;
             const gapY = Math.random() * (this.canvas.height - gapHeight);
@@ -63,11 +74,11 @@ export const gravity = {
             this.obstacles.push({ x: this.canvas.width, y: gapY + gapHeight, width: 40, height: this.canvas.height - gapY - gapHeight, type: 'bottom' });
         }
 
-        // Move obstacles
+        // 장애물 이동
         this.obstacles.forEach(o => o.x -= 3);
         this.obstacles = this.obstacles.filter(o => o.x + o.width > 0);
 
-        // Collision with obstacles
+        // 장애물 충돌 감지
         if (this.obstacles.some(o => this.player.x < o.x + o.width && this.player.x + this.player.width > o.x && this.player.y < o.y + o.height && this.player.y + this.player.height > o.y)) {
             this.gameOver();
         }
@@ -87,8 +98,9 @@ export const gravity = {
     },
 
     cleanup() {
+        // document에 추가했던 이벤트 리스너를 깨끗하게 제거합니다.
         if (this.keyHandler) document.removeEventListener('keydown', this.keyHandler);
-        if (this.touchHandler) this.canvas.removeEventListener('touchstart', this.touchHandler);
+        if (this.touchHandler) document.removeEventListener('touchstart', this.touchHandler);
         this.keyHandler = null;
         this.touchHandler = null;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);

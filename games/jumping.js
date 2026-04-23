@@ -16,7 +16,7 @@ export const jumping = {
         this.reset();
 
         const handleAction = e => {
-            e.preventDefault();
+            e.preventDefault(); // 스크롤 및 확대 방지
             if (this.player.onGround) {
                 this.player.velocityY = this.player.jump;
                 this.player.onGround = false;
@@ -26,8 +26,9 @@ export const jumping = {
         this.keyHandler = e => { if (e.code === 'Space') handleAction(e); };
         this.touchHandler = e => handleAction(e);
 
+        // document에 이벤트 리스너를 연결하여 전체 화면 터치 지원
         document.addEventListener('keydown', this.keyHandler);
-        this.canvas.addEventListener('touchstart', this.touchHandler);
+        document.addEventListener('touchstart', this.touchHandler, { passive: false });
     },
 
     reset() {
@@ -83,12 +84,13 @@ export const jumping = {
     },
 
     cleanup() {
+        // document에서 이벤트 리스너를 제거하도록 수정
         if (this.keyHandler) {
             document.removeEventListener('keydown', this.keyHandler);
             this.keyHandler = null;
         }
         if (this.touchHandler) {
-            this.canvas.removeEventListener('touchstart', this.touchHandler);
+            document.removeEventListener('touchstart', this.touchHandler);
             this.touchHandler = null;
         }
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
