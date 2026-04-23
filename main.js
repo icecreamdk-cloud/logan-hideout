@@ -59,15 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
         answerEl: document.getElementById('multiplication-answer'),
         submitBtn: document.getElementById('multiplication-submit'),
         feedbackEl: document.getElementById('multiplication-feedback'),
-        problemAreaEl: document.getElementById('multiplication-problem-area'),
-        passMessageEl: document.getElementById('multiplication-pass-message'),
-        restartBtn: document.getElementById('multiplication-restart'),
         num1: 0, num2: 0, consecutiveCorrect: 0,
 
         init() {
             this.consecutiveCorrect = 0;
-            this.passMessageEl.classList.add('hidden');
-            this.problemAreaEl.classList.remove('hidden');
             this.feedbackEl.textContent = '';
             this.generateProblem();
         },
@@ -92,14 +87,18 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     multiplication.submitBtn.addEventListener('click', () => multiplication.checkAnswer());
     multiplication.answerEl.addEventListener('keyup', e => e.key === 'Enter' && multiplication.checkAnswer());
-    multiplication.restartBtn.addEventListener('click', () => multiplication.init());
 
     const english = {
         problemEl: document.getElementById('english-problem'),
         answerEl: document.getElementById('english-answer'),
         submitBtn: document.getElementById('english-submit'),
         feedbackEl: document.getElementById('english-feedback'),
-        words: { "사과": "apple", "바나나": "banana", "고양이": "cat", "개": "dog", "집": "house", "책": "book", "차": "car", "의자": "chair", "책상": "desk", "컴퓨터": "computer" },
+        words: { 
+            "사과": "apple", "바나나": "banana", "고양이": "cat", "개": "dog", "집": "house", 
+            "책": "book", "차": "car", "의자": "chair", "책상": "desk", "컴퓨터": "computer",
+            "물": "water", "학교": "school", "학생": "student", "선생님": "teacher", "우유": "milk",
+            "빵": "bread", "연필": "pencil", "공책": "notebook", "창문": "window", "문": "door"
+        },
         currentWord: '',
         consecutiveCorrect: 0,
 
@@ -118,10 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
         checkAnswer() {
             if (this.answerEl.value.toLowerCase() === this.words[this.currentWord]) {
                 this.consecutiveCorrect++;
-                this.feedbackEl.textContent = `정답! (${this.consecutiveCorrect}/3)`;
-                if (this.consecutiveCorrect >= 3) {
-                    this.feedbackEl.textContent = '통과!';
-                }
+                this.feedbackEl.textContent = `정답!`;
                 this.generateProblem();
             } else {
                 this.consecutiveCorrect = 0;
@@ -137,38 +133,37 @@ document.addEventListener('DOMContentLoaded', () => {
         sentenceEl: document.getElementById('typing-sentence'),
         inputEl: document.getElementById('typing-input'),
         feedbackEl: document.getElementById('typing-feedback'),
-        startBtn: document.getElementById('typing-start'),
         sentences: ["하늘이 푸르다.", "강물이 맑다.", "꽃이 아름답다.", "바람이 시원하다.", "햇살이 따뜻하다."],
         startTime: 0,
 
         init() {
             this.feedbackEl.textContent = '';
             this.inputEl.value = '';
-            this.inputEl.disabled = true;
-            this.sentenceEl.textContent = "버튼을 누르면 시작합니다.";
-        },
-        start() {
             this.inputEl.disabled = false;
-            this.inputEl.value = '';
+            this.inputEl.oninput = () => this.checkTyping();
             const sentence = this.sentences[Math.floor(Math.random() * this.sentences.length)];
             this.sentenceEl.textContent = sentence;
             this.inputEl.focus();
             this.startTime = Date.now();
-            this.inputEl.addEventListener('input', () => this.checkTyping());
         },
         checkTyping() {
             const sentence = this.sentenceEl.textContent;
             const typed = this.inputEl.value;
+            if (sentence.startsWith(typed)) {
+                 this.feedbackEl.textContent = '';
+            } else {
+                 this.feedbackEl.textContent = '오타! 다시 입력하세요.';
+            }
             if (sentence === typed) {
                 const endTime = Date.now();
                 const time = (endTime - this.startTime) / 1000;
-                const speed = Math.round((typed.length * 60) / time);
-                this.feedbackEl.textContent = `완료! 속도: ${speed}타/분`;
+                const wpm = Math.round((typed.length / 5) * (60 / time));
+                this.feedbackEl.textContent = `성공! 속도: 약 ${wpm} WPM`;
                 this.inputEl.disabled = true;
+                setTimeout(() => this.init(), 2000); 
             }
         }
     };
-    typing.startBtn.addEventListener('click', () => typing.start());
 
     // --- 캔버스 게임 베이스 --- //
     const canvasGame = {
@@ -190,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ...canvasGame,
         canvasId: 'falling-square-canvas',
         gameOverMsg: null,
-        player: { x: 50, y: 250, width: 20, height: 20, velocityY: 0, jump: -10, gravity: 0.5, onGround: true },
+        player: { x: 50, y: 250, width: 20, height: 20, velocityY: 0, jump: -12, gravity: 0.8, onGround: true },
         obstacles: [],
         frame: 0,
         state: { over: false },
@@ -233,7 +228,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (this.state.over) return;
             this.frame++;
             
-            // Player physics
             this.player.velocityY += this.player.gravity;
             this.player.y += this.player.velocityY;
             if (this.player.y >= 250) {
@@ -242,7 +236,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.player.onGround = true;
             }
 
-            // Obstacles
             if (this.frame % 90 === 0) {
                 const height = Math.random() * 100 + 50;
                 this.obstacles.push({ x: this.canvas.width, y: 0, width: 30, height: height });
@@ -251,7 +244,6 @@ document.addEventListener('DOMContentLoaded', () => {
             this.obstacles.forEach(o => o.x -= 3);
             this.obstacles = this.obstacles.filter(o => o.x + o.width > 0);
 
-            // Collision
             if (this.obstacles.some(o => this.player.x < o.x + o.width && this.player.x + this.player.width > o.x && this.player.y < o.y + o.height && this.player.y + this.player.height > o.y)) {
                 this.gameOver();
             }
@@ -311,7 +303,6 @@ document.addEventListener('DOMContentLoaded', () => {
         update() {
             this.frame++;
             
-            // Player physics
             this.player.velocityY += this.player.gravity;
             this.player.y += this.player.velocityY;
             if (this.player.y >= 280) {
@@ -320,18 +311,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.player.onGround = true;
             }
 
-            // Spawn villains
             if (this.frame > this.nextSpawnFrame) {
-                const speed = Math.random() * 4 + 7; // 7 ~ 11 사이의 속도
+                const speed = Math.random() * 2 + 3.5; // 속도 50% 감소
                 this.villains.push({ x: this.ctx.canvas.width, y: 280, width: 20, height: 20, speed: speed });
-                this.nextSpawnFrame = this.frame + Math.floor(Math.random() * 30) + 20; // 20 ~ 50 프레임마다 생성
+                this.nextSpawnFrame = this.frame + Math.floor(Math.random() * 60) + 30;
             }
 
-            // Move and remove villains
             this.villains.forEach(v => v.x -= v.speed);
             this.villains = this.villains.filter(v => v.x + v.width > 0);
 
-            // Collision detection
             if (this.villains.some(v => v.x < this.player.x + this.player.width && v.x + v.width > this.player.x && v.y < this.player.y + this.player.height && v.height + v.y > this.player.y)) {
                 this.reset();
             }
@@ -340,9 +328,9 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         draw() {
             this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-            this.ctx.fillStyle = '#2ecc71'; // Green player
+            this.ctx.fillStyle = '#2ecc71';
             this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
-            this.ctx.fillStyle = '#e74c3c'; // Red villains
+            this.ctx.fillStyle = '#e74c3c';
             this.villains.forEach(v => this.ctx.fillRect(v.x, v.y, v.width, v.height));
         }
     };
@@ -408,11 +396,9 @@ document.addEventListener('DOMContentLoaded', () => {
             this.draw();
         },
         handleInput() {
-            // Keyboard
             if (keyState['ArrowLeft'] && this.player.x > 0) this.player.x -= this.player.speed;
             if (keyState['ArrowRight'] && this.player.x < this.canvas.width - this.player.width) this.player.x += this.player.speed;
             
-            // Touch
             if (this.touchX !== null) {
                 let targetX = this.touchX - this.player.width / 2;
                 targetX = Math.max(0, Math.min(this.canvas.width - this.player.width, targetX));
@@ -423,7 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.player.cooldown--;
             if (this.player.cooldown <= 0) {
                 this.bullets.push({ x: this.player.x + this.player.width / 2 - 2.5, y: this.player.y, width: 5, height: 15, speed: 7 });
-                this.player.cooldown = 20; // 3 shots per second
+                this.player.cooldown = 20;
             }
         },
         updateBullets() {
@@ -438,7 +424,6 @@ document.addEventListener('DOMContentLoaded', () => {
             this.enemies = this.enemies.filter(e => e.y < this.canvas.height);
         },
         checkCollisions() {
-            // Bullets hitting enemies
             this.bullets.forEach((b, bi) => {
                 this.enemies.forEach((e, ei) => {
                     if (b.x < e.x + e.width && b.x + b.width > e.x && b.y < e.y + e.height && b.y + b.height > e.y) {
@@ -448,27 +433,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             });
-            // Enemies hitting player
             if (this.enemies.some(e => e.x < this.player.x + this.player.width && e.x + e.width > this.player.x && e.y < this.player.y + this.player.height && e.y + e.height > this.player.y)) {
                 this.gameOver();
             }
         },
         draw() {
-            this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-            
-            // Player
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.ctx.fillStyle = '#00f';
             this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
-            
-            // Bullets
             this.ctx.fillStyle = '#ff0';
             this.bullets.forEach(b => this.ctx.fillRect(b.x, b.y, b.width, b.height));
-
-            // Enemies
             this.ctx.fillStyle = '#f00';
             this.enemies.forEach(e => this.ctx.fillRect(e.x, e.y, e.width, e.height));
-            
-            // Score
             this.ctx.fillStyle = '#fff';
             this.ctx.font = '20px Arial';
             this.ctx.fillText(`Score: ${this.score}`, 10, 25);
