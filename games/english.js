@@ -55,7 +55,7 @@ export const english = {
             this.generateProblem();
         } else {
             this.consecutiveCorrect = 0;
-            this.feedbackEl.textContent = '오답! 다시 시도하세요.';
+            this.feedbackEl.textContent = '';
             this.answerEl.value = '';
             this.answerEl.focus();
         }
