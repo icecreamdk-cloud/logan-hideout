@@ -185,10 +185,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ...canvasGame,
         canvasId: 'falling-square-canvas',
         gameOverMsg: null,
-        player: { x: 50, y: 250, width: 20, height: 20, velocityY: 0, jump: -8, gravity: 0.4, onGround: true },
-        obstacles: [],
-        frame: 0,
-        state: { over: false },
+        gravityPlayer: { x: 50, y: 250, width: 20, height: 20, velocityY: 0, jump: -8, gravity: 0.4, onGround: true },
+        gravityObstacles: [],
+        gravityFrame: 0,
+        gravityState: { over: false },
 
         init() {
             this.canvas = document.getElementById(this.canvasId);
@@ -197,11 +197,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const handleAction = (e) => {
                 e.preventDefault();
-                if (this.state.over) {
+                if (this.gravityState.over) {
                     this.reset();
-                } else if (this.player.onGround) {
-                    this.player.velocityY = this.player.jump;
-                    this.player.onGround = false;
+                } else if (this.gravityPlayer.onGround) {
+                    this.gravityPlayer.velocityY = this.gravityPlayer.jump;
+                    this.gravityPlayer.onGround = false;
                 }
             };
 
@@ -213,38 +213,38 @@ document.addEventListener('DOMContentLoaded', () => {
             this.reset();
         },
         reset() {
-            this.state.over = false;
+            this.gravityState.over = false;
             this.gameOverMsg.classList.add('hidden');
-            this.player.y = 250;
-            this.player.velocityY = 0;
-            this.player.onGround = true;
-            this.obstacles = [];
-            this.frame = 0;
+            this.gravityPlayer.y = 250;
+            this.gravityPlayer.velocityY = 0;
+            this.gravityPlayer.onGround = true;
+            this.gravityObstacles = [];
+            this.gravityFrame = 0;
             if (!this.gameLoop) {
                 this.gameLoop = setInterval(() => this.update(), 1000 / 60);
             }
         },
         update() {
-            if (this.state.over) return;
-            this.frame++;
+            if (this.gravityState.over) return;
+            this.gravityFrame++;
             
-            this.player.velocityY += this.player.gravity;
-            this.player.y += this.player.velocityY;
-            if (this.player.y >= 250) {
-                this.player.y = 250;
-                this.player.velocityY = 0;
-                this.player.onGround = true;
+            this.gravityPlayer.velocityY += this.gravityPlayer.gravity;
+            this.gravityPlayer.y += this.gravityPlayer.velocityY;
+            if (this.gravityPlayer.y >= 250) {
+                this.gravityPlayer.y = 250;
+                this.gravityPlayer.velocityY = 0;
+                this.gravityPlayer.onGround = true;
             }
 
-            if (this.frame % 90 === 0) {
+            if (this.gravityFrame % 90 === 0) {
                 const height = Math.random() * 100 + 50;
-                this.obstacles.push({ x: this.canvas.width, y: 0, width: 30, height: height });
-                this.obstacles.push({ x: this.canvas.width, y: height + 100, width: 30, height: this.canvas.height - height - 100 });
+                this.gravityObstacles.push({ x: this.canvas.width, y: 0, width: 30, height: height });
+                this.gravityObstacles.push({ x: this.canvas.width, y: height + 100, width: 30, height: this.canvas.height - height - 100 });
             }
-            this.obstacles.forEach(o => o.x -= 3);
-            this.obstacles = this.obstacles.filter(o => o.x + o.width > 0);
+            this.gravityObstacles.forEach(o => o.x -= 3);
+            this.gravityObstacles = this.gravityObstacles.filter(o => o.x + o.width > 0);
 
-            if (this.obstacles.some(o => this.player.x < o.x + o.width && this.player.x + this.player.width > o.x && this.player.y < o.y + o.height && this.player.y + this.player.height > o.y)) {
+            if (this.gravityObstacles.some(o => this.gravityPlayer.x < o.x + o.width && this.gravityPlayer.x + this.gravityPlayer.width > o.x && this.gravityPlayer.y < o.y + o.height && this.gravityPlayer.y + this.gravityPlayer.height > o.y)) {
                 this.gameOver();
             }
 
@@ -253,12 +253,12 @@ document.addEventListener('DOMContentLoaded', () => {
         draw() {
             this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
             this.ctx.fillStyle = '#3498db';
-            this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
+            this.ctx.fillRect(this.gravityPlayer.x, this.gravityPlayer.y, this.gravityPlayer.width, this.gravityPlayer.height);
             this.ctx.fillStyle = '#c0392b';
-            this.obstacles.forEach(o => this.ctx.fillRect(o.x, o.y, o.width, o.height));
+            this.gravityObstacles.forEach(o => this.ctx.fillRect(o.x, o.y, o.width, o.height));
         },
         gameOver() {
-            this.state.over = true;
+            this.gravityState.over = true;
             this.gameOverMsg.classList.remove('hidden');
         }
     };
@@ -266,10 +266,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const noGuri = {
         ...canvasGame,
         canvasId: 'no-guri-canvas',
-        player: { x: 50, y: 280, width: 20, height: 20, velocityY: 0, onGround: true, jump: -12, gravity: 0.6 },
-        villains: [],
-        frame: 0,
-        nextSpawnFrame: 0,
+        jumpingPlayer: { x: 50, y: 280, width: 20, height: 20, velocityY: 0, onGround: true, jump: -12, gravity: 0.6 },
+        jumpingVillains: [],
+        jumpingFrame: 0,
+        jumpingNextSpawnFrame: 0,
 
         init() {
             this.canvas = document.getElementById(this.canvasId);
@@ -277,9 +277,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const handleAction = e => {
                 e.preventDefault();
-                if (this.player.onGround) {
-                    this.player.velocityY = this.player.jump;
-                    this.player.onGround = false;
+                if (this.jumpingPlayer.onGround) {
+                    this.jumpingPlayer.velocityY = this.jumpingPlayer.jump;
+                    this.jumpingPlayer.onGround = false;
                 }
             };
             this.keyHandler = e => { if (e.code === 'Space') handleAction(e); };
@@ -290,37 +290,37 @@ document.addEventListener('DOMContentLoaded', () => {
             this.reset();
         },
         reset() {
-            this.player.y = 280;
-            this.player.velocityY = 0;
-            this.player.onGround = true;
-            this.villains = [];
-            this.frame = 0;
-            this.nextSpawnFrame = 60;
+            this.jumpingPlayer.y = 280;
+            this.jumpingPlayer.velocityY = 0;
+            this.jumpingPlayer.onGround = true;
+            this.jumpingVillains = [];
+            this.jumpingFrame = 0;
+            this.jumpingNextSpawnFrame = 60;
             if (!this.gameLoop) {
                 this.gameLoop = setInterval(() => this.update(), 1000 / 60);
             }
         },
         update() {
-            this.frame++;
+            this.jumpingFrame++;
             
-            this.player.velocityY += this.player.gravity;
-            this.player.y += this.player.velocityY;
-            if (this.player.y >= 280) {
-                this.player.y = 280;
-                this.player.velocityY = 0;
-                this.player.onGround = true;
+            this.jumpingPlayer.velocityY += this.jumpingPlayer.gravity;
+            this.jumpingPlayer.y += this.jumpingPlayer.velocityY;
+            if (this.jumpingPlayer.y >= 280) {
+                this.jumpingPlayer.y = 280;
+                this.jumpingPlayer.velocityY = 0;
+                this.jumpingPlayer.onGround = true;
             }
 
-            if (this.frame > this.nextSpawnFrame) {
-                const speed = Math.random() * 2 + 3.5; // 속도 50% 감소
-                this.villains.push({ x: this.ctx.canvas.width, y: 280, width: 20, height: 20, speed: speed });
-                this.nextSpawnFrame = this.frame + Math.floor(Math.random() * 60) + 30;
+            if (this.jumpingFrame > this.jumpingNextSpawnFrame) {
+                const speed = Math.random() * 2 + 3.5;
+                this.jumpingVillains.push({ x: this.ctx.canvas.width, y: 280, width: 20, height: 20, speed: speed });
+                this.jumpingNextSpawnFrame = this.jumpingFrame + Math.floor(Math.random() * 60) + 30;
             }
 
-            this.villains.forEach(v => v.x -= v.speed);
-            this.villains = this.villains.filter(v => v.x + v.width > 0);
+            this.jumpingVillains.forEach(v => v.x -= v.speed);
+            this.jumpingVillains = this.jumpingVillains.filter(v => v.x + v.width > 0);
 
-            if (this.villains.some(v => v.x < this.player.x + this.player.width && v.x + v.width > this.player.x && v.y < this.player.y + this.player.height && v.height + v.y > this.player.y)) {
+            if (this.jumpingVillains.some(v => v.x < this.jumpingPlayer.x + this.jumpingPlayer.width && v.x + v.width > this.jumpingPlayer.x && v.y < this.jumpingPlayer.y + this.jumpingPlayer.height && v.height + v.y > this.jumpingPlayer.y)) {
                 this.reset();
             }
 
@@ -329,9 +329,9 @@ document.addEventListener('DOMContentLoaded', () => {
         draw() {
             this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
             this.ctx.fillStyle = '#2ecc71';
-            this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
+            this.ctx.fillRect(this.jumpingPlayer.x, this.jumpingPlayer.y, this.jumpingPlayer.width, this.jumpingPlayer.height);
             this.ctx.fillStyle = '#e74c3c';
-            this.villains.forEach(v => this.ctx.fillRect(v.x, v.y, v.width, v.height));
+            this.jumpingVillains.forEach(v => this.ctx.fillRect(v.x, v.y, v.width, v.height));
         }
     };
 
