@@ -53,20 +53,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
     backToMenuBtn.addEventListener('click', showMainMenu);
 
-    // --- 게임 로직 (수정 없음) --- //
-    let consecutiveCorrect = 0;
+    // --- 게임 로직 --- //
     const multiplication = {
         problemEl: document.getElementById('multiplication-problem'),
         answerEl: document.getElementById('multiplication-answer'),
         submitBtn: document.getElementById('multiplication-submit'),
         feedbackEl: document.getElementById('multiplication-feedback'),
-        num1: 0, num2: 0,
-        init() { consecutiveCorrect = 0; this.generateProblem(); },
-        generateProblem() { this.num1 = Math.floor(Math.random() * 6) + 4; this.num2 = Math.floor(Math.random() * 9) + 1; this.problemEl.textContent = `${this.num1} x ${this.num2} = ?`; this.feedbackEl.textContent = ''; },
-        checkAnswer() { if (parseInt(this.answerEl.value) === this.num1 * this.num2) { consecutiveCorrect++; this.feedbackEl.textContent = `정답! (${consecutiveCorrect}/3)`; if (consecutiveCorrect >= 3) { this.feedbackEl.textContent = '성공!'; consecutiveCorrect = 0; } setTimeout(() => this.generateProblem(), 500); } else { consecutiveCorrect = 0; this.feedbackEl.textContent = '오답! 다시 시도하세요.'; } this.answerEl.value = ''; }
+        problemAreaEl: document.getElementById('multiplication-problem-area'),
+        passMessageEl: document.getElementById('multiplication-pass-message'),
+        restartBtn: document.getElementById('multiplication-restart'),
+        num1: 0, num2: 0, consecutiveCorrect: 0,
+
+        init() {
+            this.consecutiveCorrect = 0;
+            this.passMessageEl.classList.add('hidden');
+            this.problemAreaEl.classList.remove('hidden');
+            this.feedbackEl.textContent = '';
+            this.generateProblem();
+        },
+        generateProblem() {
+            this.num1 = Math.floor(Math.random() * 6) + 4;
+            this.num2 = Math.floor(Math.random() * 9) + 1;
+            this.problemEl.textContent = `${this.num1} x ${this.num2} = ?`;
+            this.answerEl.value = '';
+            this.answerEl.focus();
+        },
+        checkAnswer() {
+            if (parseInt(this.answerEl.value) === this.num1 * this.num2) {
+                this.consecutiveCorrect++;
+                if (this.consecutiveCorrect >= 3) {
+                    this.feedbackEl.textContent = '';
+                    this.problemAreaEl.classList.add('hidden');
+                    this.passMessageEl.classList.remove('hidden');
+                } else {
+                    this.feedbackEl.textContent = `정답! (${this.consecutiveCorrect}/3)`;
+                    setTimeout(() => {
+                        this.generateProblem();
+                    }, 500);
+                }
+            } else {
+                this.consecutiveCorrect = 0;
+                this.feedbackEl.textContent = '오답! 다시 시도하세요.';
+            }
+            this.answerEl.value = '';
+        }
     };
     multiplication.submitBtn.addEventListener('click', () => multiplication.checkAnswer());
     multiplication.answerEl.addEventListener('keyup', e => e.key === 'Enter' && multiplication.checkAnswer());
+    multiplication.restartBtn.addEventListener('click', () => multiplication.init());
 
     const english = {
         problemEl: document.getElementById('english-problem'),
@@ -75,9 +109,10 @@ document.addEventListener('DOMContentLoaded', () => {
         feedbackEl: document.getElementById('english-feedback'),
         words: { '사과': 'apple', '책': 'book', '의자': 'chair', '물': 'water', '학교': 'school' },
         currentWord: '',
-        init() { consecutiveCorrect = 0; this.generateProblem(); },
+        consecutiveCorrect: 0,
+        init() { this.consecutiveCorrect = 0; this.generateProblem(); },
         generateProblem() { const keys = Object.keys(this.words); this.currentWord = keys[Math.floor(Math.random() * keys.length)]; this.problemEl.textContent = this.currentWord; this.feedbackEl.textContent = ''; },
-        checkAnswer() { if (this.answerEl.value.trim().toLowerCase() === this.words[this.currentWord]) { consecutiveCorrect++; this.feedbackEl.textContent = `정답! (${consecutiveCorrect}/3)`; if (consecutiveCorrect >= 3) { this.feedbackEl.textContent = '성공!'; consecutiveCorrect = 0; } setTimeout(() => this.generateProblem(), 500); } else { consecutiveCorrect = 0; this.feedbackEl.textContent = '오답! 다시 시도하세요.'; } this.answerEl.value = ''; }
+        checkAnswer() { if (this.answerEl.value.trim().toLowerCase() === this.words[this.currentWord]) { this.consecutiveCorrect++; this.feedbackEl.textContent = `정답! (${this.consecutiveCorrect}/3)`; if (this.consecutiveCorrect >= 3) { this.feedbackEl.textContent = '성공!'; this.consecutiveCorrect = 0; } setTimeout(() => this.generateProblem(), 500); } else { this.consecutiveCorrect = 0; this.feedbackEl.textContent = '오답! 다시 시도하세요.'; } this.answerEl.value = ''; }
     };
     english.submitBtn.addEventListener('click', () => english.checkAnswer());
     english.answerEl.addEventListener('keyup', e => e.key === 'Enter' && english.checkAnswer());

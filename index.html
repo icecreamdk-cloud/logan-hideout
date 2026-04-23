@@ -31,10 +31,17 @@
             <div id="multiplication-game" class="game-view hidden">
                 <h3>곱셈 게임</h3>
                 <p>4~9단 구구단 문제를 3번 연속으로 맞히면 통과입니다.</p>
-                <div id="multiplication-problem" class="problem"></div>
-                <input type="number" id="multiplication-answer" placeholder="정답">
-                <button id="multiplication-submit">제출</button>
+                <div id="multiplication-problem-area">
+                    <div id="multiplication-problem" class="problem"></div>
+                    <input type="number" id="multiplication-answer" placeholder="정답">
+                    <button id="multiplication-submit">제출</button>
+                </div>
                 <p id="multiplication-feedback"></p>
+                <div id="multiplication-pass-message" class="hidden pass-message">
+                    <h2>축하합니다!</h2>
+                    <p>3문제를 모두 맞혔습니다!</p>
+                    <button id="multiplication-restart">다시하기</button>
+                </div>
             </div>
 
             <!-- 영어 단어 퀴즈 -->
