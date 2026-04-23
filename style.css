@@ -1,16 +1,16 @@
 /* General Styles */
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "맑은 고딕", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #f4f4f9; /* Light grey background */
-    color: #333; /* Dark text */
+    background-color: #f4f4f9;
+    color: #333;
     text-align: center;
     margin: 0;
-    padding: 20px;
+    padding: 10px; /* Reduced padding for smaller screens */
 }
 
 header h1 {
     color: #4a4a4a;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
 }
 
 .hidden {
@@ -22,9 +22,9 @@ header h1 {
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 12px;
-    padding: 25px;
-    width: 90%;
-    max-width: 700px;
+    padding: 20px;
+    width: 95%; /* More flexible width */
+    max-width: 800px;
     margin: 0 auto;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
@@ -34,17 +34,17 @@ header h1 {
     color: #333;
     border-bottom: 2px solid #eee;
     padding-bottom: 15px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .game-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 15px;
 }
 
 .game-link {
-    background-color: #007bff; /* Primary blue */
+    background-color: #007bff;
     color: #fff;
     padding: 15px 10px;
     border-radius: 8px;
@@ -55,7 +55,7 @@ header h1 {
 }
 
 .game-link:hover {
-    background-color: #0056b3; /* Darker blue */
+    background-color: #0056b3;
     transform: translateY(-2px);
 }
 
@@ -64,22 +64,22 @@ header h1 {
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 12px;
-    padding: 20px;
-    width: 90%;
+    padding: 15px;
+    width: 95%;
     max-width: 800px;
     margin: 20px auto;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 #back-to-menu {
-    background-color: #6c757d; /* Grey */
+    background-color: #6c757d;
     color: #fff;
     border: none;
     padding: 10px 20px;
     border-radius: 8px;
     font-size: 1em;
     cursor: pointer;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     transition: background-color 0.2s;
 }
 
@@ -89,20 +89,20 @@ header h1 {
 
 .game-view h3 {
     color: #007bff;
-    font-size: 2em;
+    font-size: 1.8em;
 }
 
 .game-view p {
-    font-size: 1.1em;
-    margin-bottom: 20px;
+    font-size: 1em;
+    margin-bottom: 15px;
     color: #555;
 }
 
 .problem {
-    font-size: 2.5em;
+    font-size: 2em;
     font-weight: bold;
     color: #333;
-    margin: 20px 0;
+    margin: 15px 0;
 }
 
 input, textarea {
@@ -111,13 +111,13 @@ input, textarea {
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 10px;
-    width: 80%;
-    font-size: 1.2em;
+    width: 85%;
+    font-size: 1.1em;
     margin-bottom: 10px;
 }
 
 button {
-    background-color: #28a745; /* Green */
+    background-color: #28a745;
     color: #fff;
     border: none;
     padding: 12px 25px;
@@ -133,13 +133,16 @@ button:hover {
 
 .canvas-container {
     position: relative;
-    display: inline-block; /* Center the container */
+    display: inline-block;
+    max-width: 100%; /* Ensure container scales down */
 }
 
 canvas {
-    background-color: #e9f5ff; /* Light blue sky */
+    background-color: #e9f5ff;
     border: 2px solid #ddd;
     border-radius: 10px;
+    max-width: 100%; /* Make canvas responsive */
+    height: auto; /* Maintain aspect ratio */
 }
 
 .game-over-message {
@@ -149,38 +152,42 @@ canvas {
     transform: translate(-50%, -50%);
     background-color: rgba(0, 0, 0, 0.7);
     color: white;
-    padding: 20px 40px;
+    padding: 15px 30px;
     border-radius: 10px;
     text-align: center;
-    font-size: 2em;
+    font-size: 1.5em;
     font-weight: bold;
+    width: 80%; /* Adjust width for smaller screens */
 }
 
 .game-over-message span {
     display: block;
-    font-size: 0.5em;
+    font-size: 0.6em;
     margin-top: 10px;
     font-weight: normal;
-}
-
-/* Timer Bar */
-#timer-bar-container {
-    width: 80%;
-    height: 20px;
-    background-color: #eee;
-    border-radius: 10px;
-    margin: 10px auto;
-    overflow: hidden;
-}
-
-#timer-bar {
-    height: 100%;
-    width: 100%;
-    background-color: #007bff;
-    transition: width 0.1s linear;
 }
 
 /* 1984 Shooting Game Specific Styles */
 #shooting-1984-canvas {
     background-color: #000; /* Deep space */
+}
+
+/* --- Media Queries for Responsive Design --- */
+
+@media (max-width: 768px) {
+    body { padding: 5px; }
+    header h1 { font-size: 1.8em; }
+    .game-list {
+        grid-template-columns: 1fr; /* Single column layout on smaller screens */
+    }
+    .game-view h3 { font-size: 1.5em; }
+    .problem { font-size: 1.8em; }
+    input, textarea { width: 90%; }
+}
+
+@media (max-width: 480px) {
+    header h1 { font-size: 1.5em; margin-bottom: 15px; }
+    .game-list-container, #game-container { padding: 15px; }
+    .game-over-message { font-size: 1.2em; padding: 10px 20px; }
+    .game-over-message span { font-size: 0.7em; }
 }
