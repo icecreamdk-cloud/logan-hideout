@@ -6,14 +6,13 @@ export const jumping = {
     player: {
         x: 50, y: 280, width: 20, height: 20, 
         velocityY: 0, onGround: true, 
-        jumpForce: 700, // 점프 힘 (픽셀/초)
-        gravity: 2000 // 중력 가속도 (픽셀/초^2)
+        jumpForce: 350, // 점프 힘 50% 감소 (700 -> 350)
+        gravity: 1000   // 중력 가속도 50% 감소 (2000 -> 1000)
     },
     villains: [],
     spawnTimer: 0,
     nextSpawnTime: 0,
     
-    // 이벤트 핸들러 참조
     keyHandler: null,
     touchHandler: null,
 
@@ -33,7 +32,6 @@ export const jumping = {
         this.keyHandler = e => { if (e.code === 'Space') handleAction(e); };
         this.touchHandler = e => handleAction(e);
 
-        // document 대신 canvas에 이벤트 리스너를 다시 연결합니다.
         document.addEventListener('keydown', this.keyHandler);
         this.canvas.addEventListener('touchstart', this.touchHandler, { passive: false });
     },
@@ -44,11 +42,10 @@ export const jumping = {
         this.player.onGround = true;
         this.villains = [];
         this.spawnTimer = 0;
-        this.nextSpawnTime = 1; // 1초 후에 첫 장애물 등장
+        this.nextSpawnTime = 1; 
     },
 
     update(deltaTime) {
-        // --- 플레이어 로직 ---
         this.player.velocityY += this.player.gravity * deltaTime;
         this.player.y += this.player.velocityY * deltaTime;
 
@@ -58,19 +55,19 @@ export const jumping = {
             this.player.onGround = true;
         }
 
-        // --- 장애물 로직 ---
         this.spawnTimer += deltaTime;
         if (this.spawnTimer > this.nextSpawnTime) {
-            const speed = (Math.random() * 100 + 200); // 200-300 픽셀/초
+            // 장애물 속도 50% 감소 (200-300 -> 100-150)
+            const speed = (Math.random() * 50 + 100);
             this.villains.push({ x: this.canvas.width, y: 280, width: 20, height: 20, speed: speed });
             this.spawnTimer = 0;
-            this.nextSpawnTime = Math.random() * 0.8 + 0.5; // 0.5초 ~ 1.3초 사이
+            // 장애물 생성 주기는 그대로 유지하여 난이도 급락 방지
+            this.nextSpawnTime = Math.random() * 0.8 + 0.5; 
         }
 
         this.villains.forEach(v => v.x -= v.speed * deltaTime);
         this.villains = this.villains.filter(v => v.x + v.width > 0);
 
-        // --- 충돌 감지 ---
         if (this.villains.some(v => v.x < this.player.x + this.player.width && v.x + v.width > this.player.x && v.y < this.player.y + this.player.height && v.height + v.y > this.player.y)) {
             this.reset();
         }

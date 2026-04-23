@@ -5,13 +5,13 @@ export const gravity = {
     player: {
         x: 50, y: 150, width: 20, height: 20,
         velocityY: 0,
-        jumpForce: 450, // 점프 힘 (픽셀/초)
-        gravity: 1400   // 중력 가속도 (픽셀/초^2)
+        jumpForce: 225, // 점프 힘 50% 감소 (450 -> 225)
+        gravity: 700    // 중력 가속도 50% 감소 (1400 -> 700)
     },
     obstacles: [],
-    obstacleSpeed: 180, // 장애물 이동 속도 (픽셀/초)
+    obstacleSpeed: 90, // 장애물 이동 속도 50% 감소 (180 -> 90)
     spawnTimer: 0,
-    nextSpawnTime: 1.5, // 첫 장애물은 1.5초 후 등장
+    nextSpawnTime: 1.5, 
     state: { over: false },
 
     keyHandler: null,
@@ -35,7 +35,6 @@ export const gravity = {
         this.keyHandler = e => { if (e.code === 'Space') handleJump(e); };
         this.touchHandler = e => handleJump(e);
 
-        // canvas에 이벤트 리스너를 다시 연결합니다.
         document.addEventListener('keydown', this.keyHandler);
         this.canvas.addEventListener('touchstart', this.touchHandler, { passive: false });
     },
@@ -53,22 +52,17 @@ export const gravity = {
     update(deltaTime) {
         if (this.state.over) return;
 
-        // --- 플레이어 물리 (deltaTime 적용) ---
         this.player.velocityY += this.player.gravity * deltaTime;
         this.player.y += this.player.velocityY * deltaTime;
 
-        // --- 충돌 감지 ---
-        // 바닥/천장 충돌 시 게임오버
         if (this.player.y > this.canvas.height - this.player.height || this.player.y < 0) {
             this.gameOver();
         }
 
-        // 장애물 충돌
         if (this.obstacles.some(o => this.player.x < o.x + o.width && this.player.x + this.player.width > o.x && this.player.y < o.y + o.height && this.player.y + this.player.height > o.y)) {
             this.gameOver();
         }
 
-        // --- 장애물 관리 (deltaTime 적용) ---
         this.spawnTimer += deltaTime;
         if (this.spawnTimer > this.nextSpawnTime) {
             const gapHeight = 120;
@@ -77,7 +71,8 @@ export const gravity = {
             this.obstacles.push({ x: this.canvas.width, y: gapY + gapHeight, width: 40, height: this.canvas.height - gapY - gapHeight });
             
             this.spawnTimer = 0;
-            this.nextSpawnTime = 1.5; // 장애물은 1.5초마다 생성
+            // 장애물 생성 주기를 2.5초로 늘려 난이도를 완화합니다.
+            this.nextSpawnTime = 2.5; 
         }
 
         this.obstacles.forEach(o => o.x -= this.obstacleSpeed * deltaTime);
